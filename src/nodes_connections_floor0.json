@@ -1,0 +1,530 @@
+{
+  "nodes": {
+    "Acceuil": [
+      -7.2,
+      0.181557,
+      0.000616
+    ],
+    "Hallway1": [
+      -5.864243,
+      0.191557,
+      0.000616
+    ],
+    "Hallway2": [
+      -3.55177,
+      0.081557,
+      0.000616
+    ],
+    "salle1": [
+      -6.13026,
+      0.14613,
+      3.024616
+    ],
+    "parent_s1": [
+      -5.84243,
+      0.17279,
+      4.124616
+    ],
+    "parent_ss1": [
+      -6.41363,
+      0.11192,
+      6.124616
+    ],
+    "salle2": [
+      -7.19775,
+      0.16934,
+      4.124616
+    ],
+    "salle3": [
+      -5.98474,
+      0.1629,
+      7.124616
+    ],
+    "salle4": [
+      -3.77839,
+      0.1629,
+      7.124616
+    ],
+    "salle5": [
+      -3.35664,
+      0.0629,
+      7.124616
+    ],
+    "parent_s2": [
+      -1.92614,
+      0.10317,
+      4.124616
+    ],
+    "salle6": [
+      -6.21008,
+      0.1273,
+      -2.875384
+    ],
+    "salle7": [
+      -6.19834,
+      0.15316,
+      -3.575384
+    ],
+    "labo 3D": [
+      -5.76351,
+      0.16377,
+      -3.875384
+    ],
+    "esc1": [
+      -4.11783,
+      0.13703,
+      -1.675384
+    ],
+    "esc2": [
+      -2.94802,
+      0.18873,
+      -1.875384
+    ],
+    "assenseur1": [
+      -3.46789,
+      0.13406,
+      -3.875384
+    ],
+    "esc3": [
+      -4.10476,
+      0.110443,
+      1.124616
+    ],
+    "esc4": [
+      -2.99162,
+      0.08563,
+      2.124616
+    ],
+    "assenseur2": [
+      -3.62639,
+      0.17259,
+      3.424616
+    ],
+    "Hallway3": [
+      -0.625051,
+      0.081557,
+      0.000616
+    ],
+    "Hallway4": [
+      -0.625051,
+      0.2,
+      2.5
+    ],
+    "salle9": [
+      -1.55764,
+      0.16883,
+      5.824616
+    ],
+    "salle10": [
+      0.454286,
+      0.14944,
+      5.824616
+    ],
+    "Hallway5": [
+      1.40332,
+      0.21287,
+      3.724616
+    ],
+    "Hallway6": [
+      3.39579,
+      0.10622,
+      4.824616
+    ],
+    "Hallway7": [
+      3.39579,
+      0.160598,
+      0.124616
+    ],
+    "salle11": [
+      4.67912,
+      0.12202,
+      5.924616
+    ],
+    "parent_s3": [
+      5.02477,
+      0.13442,
+      5.124616
+    ],
+    "salle12": [
+      5.95299,
+      0.17104,
+      7.124616
+    ],
+    "salle13": [
+      6.49573,
+      0.17104,
+      7.124616
+    ],
+    "salle14": [
+      7.84071,
+      0.19054,
+      6.724616
+    ],
+    "salle15": [
+      8.2694,
+      0.12071,
+      4.724616
+    ],
+    "salle16": [
+      3.22803,
+      0.18905,
+      -5.875384
+    ],
+    "Hallway8": [
+      3.39579,
+      0.19065,
+      -4.675384
+    ],
+    "salle17": [
+      4.74535,
+      0.11803,
+      -6.175384
+    ],
+    "parent_s4": [
+      4.98681,
+      0.18755,
+      -5.275384
+    ],
+    "salle18": [
+      8.19746,
+      0.16755,
+      -5.275384
+    ],
+    "salle19": [
+      8.19746,
+      0.18381,
+      -6.55384
+    ],
+    "salle20": [
+      7.92272,
+      0.12612,
+      -6.975384
+    ],
+    "salle21": [
+      5.35298,
+      0.14195,
+      -7.375384
+    ],
+    "Hallway9": [
+      -0.175508,
+      0.16856,
+      -3.275384
+    ],
+    "salle22": [
+      -1.72925,
+      0.1853,
+      -6.175384
+    ],
+    "salle23": [
+      0.517183,
+      0.17784,
+      -6.175384
+    ],
+    "parent_s5": [
+      -1.72925,
+      0.20179,
+      -4.375384
+    ],
+    "parent_ss5": [
+      -2.53595,
+      0.19378,
+      -4.575384
+    ],
+    "salle24": [
+      -2.66237,
+      0.14533,
+      -7.275384
+    ],
+    "SalleConférence": [
+      4.19632,
+      0.20683,
+      2.124616
+    ]
+  },
+  "connections": {
+    "Acceuil": [
+      "Hallway1"
+    ],
+    "Hallway1": [
+      "Acceuil",
+      "Hallway2",
+      "salle1",
+      "salle6",
+      "salle7",
+      "labo 3D",
+      "salle1",
+      "parent_s1"
+    ],
+    "salle1": [
+      "Hallway1",
+      "parent_s1"
+    ],
+    "parent_s1": [
+      "salle1",
+      "parent_ss1",
+      "Hallway1",
+      "salle3",
+      "salle4",
+      "salle5",
+      "parent_s2"
+    ],
+    "parent_ss1": [
+      "salle1",
+      "salle2",
+      "salle3",
+      "salle4",
+      "salle5",
+      "parent_s2"
+    ],
+    "salle2": [
+      "parent_ss1"
+    ],
+    "salle3": [
+      "parent_s1",
+      "parent_ss1"
+    ],
+    "salle4": [
+      "parent_s1",
+      "salle3",
+      "salle5",
+      "parent_s2",
+      "parent_ss1"
+    ],
+    "salle5": [
+      "parent_s1",
+      "salle3",
+      "salle4",
+      "parent_s2",
+      "parent_ss1"
+    ],
+    "parent_s2": [
+      "parent_s1",
+      "salle3",
+      "salle4",
+      "salle5",
+      "salle9",
+      "salle10",
+      "Hallway4",
+      "Hallway5",
+      "Hallway6",
+      "parent_ss1"
+    ],
+    "salle9": [
+      "parent_s2",
+      "salle10",
+      "Hallway4",
+      "Hallway5",
+      "Hallway6"
+    ],
+    "salle10": [
+      "parent_s2",
+      "salle9",
+      "Hallway4",
+      "Hallway5"
+    ],
+    "Hallway4": [
+      "parent_s2",
+      "salle9",
+      "salle10",
+      "Hallway3",
+      "Hallway5",
+      "Hallway7",
+      "SalleConférence"
+    ],
+    "Hallway5": [
+      "parent_s2",
+      "Hallway4",
+      "Hallway6",
+      "salle9",
+      "salle10",
+      "Hallway7",
+      "SalleConférence"
+    ],
+    "Hallway6": [
+      "Hallway5",
+      "Hallway7",
+      "parent_s3",
+      "salle11",
+      "SalleConférence"
+    ],
+    "parent_s3": [
+      "Hallway6",
+      "salle11",
+      "salle12",
+      "salle15"
+    ],
+    "salle11": [
+      "Hallway6",
+      "parent_s3"
+    ],
+    "salle12": [
+      "parent_s3",
+      "salle13",
+      "salle14"
+    ],
+    "salle13": [
+      "salle12",
+      "salle14"
+    ],
+    "salle14": [
+      "salle12",
+      "salle13",
+      "salle15"
+    ],
+    "salle15": [
+      "salle14",
+      "parent_s3"
+    ],
+    "Hallway7": [
+      "Hallway5",
+      "Hallway6",
+      "Hallway8",
+      "Hallway9",
+      "salle10",
+      "SalleConférence"
+    ],
+    "Hallway8": [
+      "parent_s4",
+      "salle16",
+      "salle17",
+      "Hallway7",
+      "Hallway9",
+      "SalleConférence"
+    ],
+    "SalleConférence": [
+      "Hallway4",
+      "Hallway5",
+      "Hallway6",
+      "Hallway7",
+      "Hallway8"
+    ],
+    "salle16": [
+      "parent_s4",
+      "salle17",
+      "Hallway8"
+    ],
+    "salle17": [
+      "parent_s4",
+      "salle16",
+      "Hallway8"
+    ],
+    "parent_s4": [
+      "salle16",
+      "salle17",
+      "Hallway8",
+      "salle18",
+      "salle21"
+    ],
+    "salle21": [
+      "parent_s4",
+      "salle20",
+      "salle19"
+    ],
+    "salle20": [
+      "salle19",
+      "salle18",
+      "salle21"
+    ],
+    "salle19": [
+      "salle18",
+      "salle20",
+      "salle21"
+    ],
+    "salle18": [
+      "salle19",
+      "salle20",
+      "parent_s4"
+    ],
+    "Hallway9": [
+      "Hallway8",
+      "Hallway7",
+      "Hallway3",
+      "salle23",
+      "salle22",
+      "parent_s5"
+    ],
+    "salle23": [
+      "Hallway9",
+      "salle22",
+      "parent_s5"
+    ],
+    "salle22": [
+      "Hallway9",
+      "salle23",
+      "parent_s5"
+    ],
+    "parent_s5": [
+      "Hallway9",
+      "salle23",
+      "salle22",
+      "parent_ss5"
+    ],
+    "parent_ss5": [
+      "parent_s5",
+      "salle24"
+    ],
+    "salle24": [
+      "parent_ss5"
+    ],
+    "Hallway3": [
+      "Hallway4",
+      "Hallway2",
+      "Hallway9"
+    ],
+    "Hallway2": [
+      "Hallway1",
+      "Hallway3",
+      "esc1",
+      "esc2",
+      "assenseur1",
+      "esc3",
+      "esc4",
+      "assenseur2"
+    ],
+    "esc2": [
+      "Hallway2",
+      "esc1",
+      "assenseur1"
+    ],
+    "esc1": [
+      "Hallway2",
+      "esc2",
+      "assenseur1"
+    ],
+    "assenseur1": [
+      "Hallway2",
+      "esc1",
+      "esc2"
+    ],
+    "esc3": [
+      "Hallway2",
+      "esc4",
+      "assenseur2"
+    ],
+    "esc4": [
+      "Hallway2",
+      "esc3",
+      "assenseur2"
+    ],
+    "assenseur2": [
+      "Hallway2",
+      "esc3",
+      "esc4"
+    ],
+    "salle6": [
+      "Hallway1",
+      "salle7",
+      "labo 3D"
+    ],
+    "salle7": [
+      "Hallway1",
+      "salle6",
+      "labo 3D"
+    ],
+    "labo3D": [
+      "Hallway1",
+      "salle6",
+      "salle7"
+    ]
+  }
+}

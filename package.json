@@ -18,8 +18,11 @@
   "dependencies": {
     "@react-three/drei": "9.115.0",
     "@react-three/fiber": "8.17.10",
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-router-dom": "^7.5.0",
     "three": "0.170.0"
   },
   "devDependencies": {
