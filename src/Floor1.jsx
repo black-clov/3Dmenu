@@ -39,7 +39,7 @@ export default function Floor1() {
     };
 
     function FloorModel() {
-        const { scene } = useGLTF("/floor1_up10.glb");
+        const { scene } = useGLTF("/floor1.glb");
         return <primitive object={scene} />;
     }
 

@@ -1,5 +1,5 @@
 // src/App.jsx (for floor0)
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import { dijkstra } from "./Dijkstra";
@@ -59,6 +59,14 @@ export default function App() {
     setEditRot(nodesState[nodeName].rotation);
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const startParam = params.get("start"); // expects ?start=salle1
+    if (startParam && nodesState[startParam]) {
+      setStartNode(startParam);
+    }
+  }, [nodesState]);
+
   const handlePosChange = (axis, value) => {
     const newPos = editPos.map((val, idx) =>
       idx === axis ? parseFloat(value) || 0 : val
@@ -87,6 +95,7 @@ export default function App() {
     setPath(computedPath);
   };
 
+  
   // --- Save to JSON file (optional) ---
   const saveToFile = () => {
     const exportData = {
@@ -160,6 +169,10 @@ export default function App() {
       </line>
     );
   }
+
+  
+
+
 
   // --- Render ---
   return (
@@ -298,4 +311,5 @@ export default function App() {
       </Canvas>
     </div>
   );
+  
 }

@@ -31,3 +31,67 @@ body {
   color: black;
   -webkit-font-smoothing: antialiased;
 }
+
+
+/* Opening Page */
+.opening-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-img {
+  max-width: 250px;
+  height: auto;
+  margin-bottom: 40px;
+}
+
+.start-btn {
+  font-size: 1.2rem;
+  padding: 12px 24px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.start-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Scan Page */
+.scan-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #eef3f7;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.scan-title {
+  font-size: 1.6rem;
+  margin-bottom: 30px;
+}
+
+.scan-btn {
+  padding: 14px 30px;
+  font-size: 1.1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.scan-btn:hover {
+  background-color: #1e7e34;
+}
