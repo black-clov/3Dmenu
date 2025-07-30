@@ -40,12 +40,12 @@
             0.1629,
             7.124616
         ],
-        "salle4": [
+        "salle4 / unkown_floor0_1": [
             -3.77839,
             0.1629,
             7.124616
         ],
-        "salle5": [
+        "salle5 / Toilette(sauf personnel)": [
             -3.35664,
             0.0629,
             7.124616
@@ -55,12 +55,12 @@
             0.10317,
             4.124616
         ],
-        "salle6": [
+        "salle6 / Services informatiques et réseau": [
             -6.21008,
             0.1273,
             -2.875384
         ],
-        "salle7": [
+        "salle7 / Labo Prototypage rapide": [
             -6.19834,
             0.15316,
             -3.575384
@@ -70,32 +70,32 @@
             0.16377,
             -3.875384
         ],
-        "esc1": [
+        "esc1 / Escalier2 1er & 2éme étage": [
             -4.11783,
             0.13703,
             -1.675384
         ],
-        "esc2": [
+        "esc2 / unkown_floor0_2": [
             -2.94802,
             0.18873,
             -1.875384
         ],
-        "assenseur1": [
+        "assenseur1 / Assenseur2": [
             -3.46789,
             0.13406,
             -3.875384
         ],
-        "esc3": [
+        "esc3 / Escalier1 1er & 2éme étage": [
             -4.10476,
             0.110443,
             1.124616
         ],
-        "esc4": [
+        "esc4 / Escalier rez de jardin": [
             -2.99162,
             0.08563,
             2.124616
         ],
-        "assenseur2": [
+        "assenseur2 / Assenseur1": [
             -3.62639,
             0.17259,
             3.424616
@@ -110,12 +110,12 @@
             0.2,
             2.5
         ],
-        "salle9": [
+        "salle9 / Buvette du personnel, enseignant et administration": [
             -1.55764,
             0.16883,
             5.824616
         ],
-        "salle10": [
+        "salle10 / RC-3": [
             0.454286,
             0.14944,
             5.824616
@@ -135,7 +135,7 @@
             0.160598,
             0.124616
         ],
-        "salle11": [
+        "salle11 / Labo de transfert d’energie & Labo de machines thermique": [
             4.67912,
             0.12202,
             5.924616
@@ -145,27 +145,27 @@
             0.13442,
             5.124616
         ],
-        "salle12": [
+        "salle12 / Toilette Homme": [
             5.95299,
             0.17104,
             7.124616
         ],
-        "salle13": [
+        "salle13 / Toilette Femme": [
             6.49573,
             0.17104,
             7.124616
         ],
-        "salle14": [
+        "salle14 / المكتب المحلي": [
             7.84071,
             0.19054,
             6.724616
         ],
-        "salle15": [
+        "salle15 / Labo de mecanique fluide": [
             8.2694,
             0.12071,
             4.724616
         ],
-        "salle16": [
+        "salle16 / unkown_floor0_3": [
             3.22803,
             0.18905,
             -5.875384
@@ -175,7 +175,7 @@
             0.19065,
             -4.675384
         ],
-        "salle17": [
+        "salle17 / Labo de simulation D’electronique de puissance": [
             4.74535,
             0.11803,
             -6.175384
@@ -185,22 +185,22 @@
             0.18755,
             -5.275384
         ],
-        "salle18": [
+        "salle18 / Personnel_floor0_1": [
             8.19746,
             0.16755,
             -5.275384
         ],
-        "salle19": [
+        "salle19 / Personnel_floor0_2": [
             8.19746,
             0.18381,
             -6.55384
         ],
-        "salle20": [
+        "salle20 / Personnel_floor0_3": [
             7.92272,
             0.12612,
             -6.975384
         ],
-        "salle21": [
+        "salle21 / Personnel_floor0_4": [
             5.35298,
             0.14195,
             -7.375384
@@ -210,12 +210,12 @@
             0.16856,
             -3.275384
         ],
-        "salle22": [
+        "salle22 / RC-2": [
             -1.72925,
             0.1853,
             -6.175384
         ],
-        "salle23": [
+        "salle23 / RC-1": [
             0.517183,
             0.17784,
             -6.175384
@@ -230,12 +230,12 @@
             0.19378,
             -4.575384
         ],
-        "salle24": [
+        "salle24 / Labo Electrotechnique Etude energie renouvelable": [
             -2.66237,
             0.14533,
             -7.275384
         ],
-        "SalleConférence": [
+        "SalleConférence / Salle de Conférences": [
             4.19632,
             0.20683,
             2.124616

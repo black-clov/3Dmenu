@@ -1,9 +1,8 @@
-// src/App.jsx (for floor0)
 import React, { useState, useMemo, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import { dijkstra } from "./Dijkstra";
-import initialNodesData from "./nodes_connections_floor0.json"; // JSON containing nodes and connections
+import initialNodesData from "./nodes_connections_floor1.json";
 import "./styles.css";
 
 const connections = initialNodesData.connections;
@@ -12,30 +11,27 @@ const getInitialNodes = () => {
   const nodes = {};
   for (const key in initialNodesData.nodes) {
     nodes[key] = {
-      position: initialNodesData.nodes[key], // expected format: [x, y, z]
-      rotation: [0, 0, 0], // default rotation (in radians)
+      position: initialNodesData.nodes[key],
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1], // ⬅️ Added scale
     };
   }
   return nodes;
 };
 
 export default function App() {
-  // --- State ---
   const [nodesState, setNodesState] = useState(getInitialNodes);
-  const [startNode, setStartNode] = useState("Acceuil");
-  const [endNode, setEndNode] = useState("Hallway1");
+  const [startNode, setStartNode] = useState("Entrée 1er étage_0");
+  const [endNode, setEndNode] = useState("Entrée 1er étage_1");
   const [path, setPath] = useState([]);
 
-  const [selectedEditNode, setSelectedEditNode] = useState(
-    Object.keys(nodesState)[0] || ""
-  );
+  const [selectedEditNode, setSelectedEditNode] = useState(Object.keys(nodesState)[0] || "");
   const [editPos, setEditPos] = useState(nodesState[selectedEditNode].position);
   const [editRot, setEditRot] = useState(nodesState[selectedEditNode].rotation);
+  const [editScale, setEditScale] = useState(nodesState[selectedEditNode].scale);
 
-  // NEW: store last clicked point
   const [clickedPos, setClickedPos] = useState(null);
 
-  // Prepare nodes for Dijkstra.
   const nodesForDijkstra = useMemo(() => {
     const out = {};
     for (const key in nodesState) {
@@ -44,11 +40,22 @@ export default function App() {
     return out;
   }, [nodesState]);
 
-  // --- Handlers ---
-  const updateNodeFromInputs = (nodeName, newPos, newRot) => {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const startParam = params.get("start");
+    if (startParam && nodesState[startParam]) {
+      setStartNode(startParam);
+    }
+  }, [nodesState]);
+
+  const updateNodeFromInputs = (nodeName, newPos, newRot, newScale) => {
     setNodesState((prev) => ({
       ...prev,
-      [nodeName]: { position: newPos, rotation: newRot },
+      [nodeName]: {
+        position: newPos,
+        rotation: newRot,
+        scale: newScale,
+      },
     }));
   };
 
@@ -57,22 +64,15 @@ export default function App() {
     setSelectedEditNode(nodeName);
     setEditPos(nodesState[nodeName].position);
     setEditRot(nodesState[nodeName].rotation);
+    setEditScale(nodesState[nodeName].scale);
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const startParam = params.get("start"); // expects ?start=salle1
-    if (startParam && nodesState[startParam]) {
-      setStartNode(startParam);
-    }
-  }, [nodesState]);
 
   const handlePosChange = (axis, value) => {
     const newPos = editPos.map((val, idx) =>
       idx === axis ? parseFloat(value) || 0 : val
     );
     setEditPos(newPos);
-    updateNodeFromInputs(selectedEditNode, newPos, editRot);
+    updateNodeFromInputs(selectedEditNode, newPos, editRot, editScale);
   };
 
   const handleRotChange = (axis, value) => {
@@ -80,29 +80,28 @@ export default function App() {
       idx === axis ? parseFloat(value) || 0 : val
     );
     setEditRot(newRot);
-    updateNodeFromInputs(selectedEditNode, editPos, newRot);
+    updateNodeFromInputs(selectedEditNode, editPos, newRot, editScale);
+  };
+
+  const adjustScale = (delta) => {
+    const newScale = editScale.map((s) => Math.max(0.1, s + delta));
+    setEditScale(newScale);
+    updateNodeFromInputs(selectedEditNode, editPos, editRot, newScale);
   };
 
   const findPath = () => {
     setPath([]);
-    const computedPath = dijkstra(
-      startNode,
-      endNode,
-      nodesForDijkstra,
-      connections
-    );
+    const computedPath = dijkstra(startNode, endNode, nodesForDijkstra, connections);
     console.log("Computed Path:", computedPath);
     setPath(computedPath);
   };
 
-  
-  // --- Save to JSON file (optional) ---
   const saveToFile = () => {
     const exportData = {
       nodes: {},
       connections: connections,
     };
-    for (const [name, { position, rotation }] of Object.entries(nodesState)) {
+    for (const [name, { position }] of Object.entries(nodesState)) {
       exportData.nodes[name] = position;
     }
     const jsonStr = JSON.stringify(exportData, null, 2);
@@ -110,34 +109,34 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "nodes_connections_floor0.json";
+    a.download = "nodes_connections_floor1.json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  // --- 3D Components ---
   function FloorModel() {
-    const { scene } = useGLTF("/floor0.glb");
+    const { scene } = useGLTF("/floor1.glb");
     return <primitive object={scene} />;
   }
 
   function NodeMarkers({ nodes, onNodeClick }) {
     return (
       <>
-        {Object.entries(nodes).map(([name, { position, rotation }]) => (
+        {Object.entries(nodes).map(([name, { position, rotation, scale }]) => (
           <mesh
             key={name}
             position={position}
             rotation={rotation}
+            scale={scale}
             onClick={(e) => {
               e.stopPropagation();
               onNodeClick(e.point);
             }}
           >
             <sphereGeometry args={[0.1, 16, 16]} />
-            <meshStandardMaterial color="orange" />
+            <meshStandardMaterial color="white" />
           </mesh>
         ))}
       </>
@@ -155,6 +154,7 @@ export default function App() {
     }, [path, nodes]);
 
     if (!positions || positions.length < 6) return null;
+
     return (
       <line>
         <bufferGeometry>
@@ -165,19 +165,13 @@ export default function App() {
             itemSize={3}
           />
         </bufferGeometry>
-        <lineBasicMaterial color="hotpink" linewidth={3} />
+        <lineBasicMaterial color="hotpink" />
       </line>
     );
   }
 
-  
-
-
-
-  // --- Render ---
   return (
     <div style={{ height: "100vh", width: "100vw" }}>
-      {/* Navigation & Editing UI Panel */}
       <div
         style={{
           position: "absolute",
@@ -187,6 +181,7 @@ export default function App() {
           background: "#fff",
           padding: "10px",
           borderRadius: "4px",
+          maxWidth: "300px",
         }}
       >
         <h3>Navigation for Floor0</h3>
@@ -214,7 +209,7 @@ export default function App() {
 
         <hr style={{ margin: "10px 0" }} />
 
-        <h3>Edit Node Coordinates</h3>
+        <h3>Edit Node</h3>
         <div>
           <label>Select Node: </label>
           <select value={selectedEditNode} onChange={handleSelectEditNode}>
@@ -225,6 +220,7 @@ export default function App() {
             ))}
           </select>
         </div>
+
         <div style={{ marginTop: "5px" }}>
           <strong>Position:</strong>
           <div>
@@ -251,6 +247,7 @@ export default function App() {
             />
           </div>
         </div>
+
         <div style={{ marginTop: "5px" }}>
           <strong>Rotation:</strong>
           <div>
@@ -277,6 +274,16 @@ export default function App() {
             />
           </div>
         </div>
+
+        {/* Scale Controls */}
+        <div style={{ marginTop: "10px" }}>
+          <strong>Scale:</strong>
+          <div style={{ display: "flex", gap: "5px", marginTop: "5px" }}>
+            <button onClick={() => adjustScale(0.1)}>+ Increase Scale</button>
+            <button onClick={() => adjustScale(-0.1)}>- Decrease Scale</button>
+          </div>
+        </div>
+
         <button onClick={saveToFile} style={{ marginTop: "10px" }}>
           Save changes
         </button>
@@ -285,31 +292,25 @@ export default function App() {
         <h3>Last Clicked Point</h3>
         {clickedPos ? (
           <div>
-            X: {clickedPos.x.toFixed(2)}, Y: {clickedPos.y.toFixed(2)}, Z:{" "}
-            {clickedPos.z.toFixed(2)}
+            X: {clickedPos.x.toFixed(2)}, Y: {clickedPos.y.toFixed(2)}, Z: {clickedPos.z.toFixed(2)}
           </div>
         ) : (
           <div>Click a node to see its coordinates</div>
         )}
       </div>
 
-      {/* Three.js Canvas */}
+      {/* Canvas */}
       <Canvas camera={{ fov: 70, position: [0, 2, 8] }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 10, 5]} intensity={1} />
         <OrbitControls />
-        <group position={[0, 4, 0]}>
-          <FloorModel />
-          <NodeMarkers
-            nodes={nodesState}
-            onNodeClick={(point) => setClickedPos(point)}
-          />
-          {path.length > 0 && (
-            <PathLine path={path} nodes={nodesForDijkstra} />
-          )}
-        </group>
+        <FloorModel />
+        <NodeMarkers
+          nodes={nodesState}
+          onNodeClick={(point) => setClickedPos(point)}
+        />
+        {path.length > 0 && <PathLine path={path} nodes={nodesForDijkstra} />}
       </Canvas>
     </div>
   );
-  
 }

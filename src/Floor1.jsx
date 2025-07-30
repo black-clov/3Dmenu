@@ -1,12 +1,20 @@
-// src/Floor1.jsx (for example, for /floor1)
-import React, { useState, useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
+import * as THREE from "three";
 import { dijkstra } from "./Dijkstra";
-import nodesData from "./nodes_connections_floor1.json"; // simpler JSON data for floor1
+import nodesData from "./nodes_connections_floor1.json";
 import "./styles.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const connections = nodesData.connections;
+
+const hiddenNodes = new Set([
+    "inter1", "inter2", "inter3", "inter4", "inter5", "inter6", "inter7", "inter8", "inter9", "inter10",
+    "inter11", "inter12", "inter13", "inter14", "inter15", "inter16", "inter17", "inter18", "inter19", "inter20",
+    "inter21", "inter22", "inter23", "inter24", "inter25", "inter26", "inter27", "inter28", "inter29", "inter30",
+    "inter31", "inter32", "inter33", "inter34", "inter35", "inter36", "inter37", "inter38", ""
+]);
 
 const getInitialNodes = () => {
     const nodes = {};
@@ -19,11 +27,100 @@ const getInitialNodes = () => {
     return nodes;
 };
 
+function FloorModel() {
+    const { scene } = useGLTF("/floor1.glb");
+    return <primitive object={scene} />;
+}
+
+function NodeMarkers({ nodes }) {
+    return (
+        <>
+            {Object.entries(nodes).map(([name, { position, rotation }]) => (
+                <mesh key={name} position={position} rotation={rotation}>
+                    <sphereGeometry args={[0.1, 16, 16]} />
+                    <meshStandardMaterial
+                        color="white"
+                        transparent={true}
+                        opacity={0}          // Completely invisible
+                        depthWrite={false}   // Prevent z-buffer interference
+                    />
+                </mesh>
+            ))}
+        </>
+    );
+}
+
+function AnimatedTube({ path, nodes }) {
+    const curve = useMemo(() => {
+        const points = path.map((node) => new THREE.Vector3(...nodes[node]));
+        return new THREE.CatmullRomCurve3(points);
+    }, [path, nodes]);
+
+    const tubeRef = useRef();
+    const markerRef = useRef();
+    const startRef = useRef();
+    const endRef = useRef();
+    const [t, setT] = useState(0);
+
+    useFrame(({ clock }) => {
+        const nextT = (t + 0.005) % 1;
+        setT(nextT);
+
+        if (markerRef.current) {
+            const point = curve.getPointAt(nextT);
+            markerRef.current.position.copy(point);
+        }
+
+        const scale = 1 + 0.3 * Math.sin(clock.getElapsedTime() * 3);
+        if (startRef.current) startRef.current.scale.set(scale, scale, scale);
+        if (endRef.current) endRef.current.scale.set(scale, scale, scale);
+    });
+
+    useEffect(() => {
+        setT(0);
+    }, [path]);
+
+    if (path.length < 2) return null;
+
+    return (
+        <>
+            <mesh ref={tubeRef}>
+                <tubeGeometry args={[curve, 100, 0.05, 8, false]} />
+                <meshStandardMaterial color="white" />
+            </mesh>
+
+            <mesh ref={markerRef}>
+                <sphereGeometry args={[0.1, 16, 16]} />
+                <meshStandardMaterial color="red" emissive="red" emissiveIntensity={1} />
+            </mesh>
+
+            <mesh ref={startRef} position={nodes[path[0]]}>
+                <sphereGeometry args={[0.15, 16, 16]} />
+                <meshStandardMaterial color="red" emissive="red" emissiveIntensity={0.8} />
+            </mesh>
+
+            <mesh ref={endRef} position={nodes[path[path.length - 1]]}>
+                <sphereGeometry args={[0.15, 16, 16]} />
+                <meshStandardMaterial color="green" emissive="green" emissiveIntensity={0.8} />
+            </mesh>
+        </>
+    );
+}
+
+
 export default function Floor1() {
     const [nodesState] = useState(getInitialNodes);
-    const [startNode, setStartNode] = useState("Acceuil");
-    const [endNode, setEndNode] = useState("Hallway1");
+    const [startNode, setStartNode] = useState("Entrée 1er étage_0");
+    const [endNode, setEndNode] = useState("Entrée 1er étage_0");
     const [path, setPath] = useState([]);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Multi-floor continuation
+    const [continueTo, setContinueTo] = useState(null);
+    const [finalEnd, setFinalEnd] = useState(null);
+
+    const controlsRef = useRef();
 
     const nodesForDijkstra = useMemo(() => {
         const out = {};
@@ -34,87 +131,143 @@ export default function Floor1() {
     }, [nodesState]);
 
     const findPath = () => {
+        if (!startNode || !endNode) {
+            setPath([]);
+            return;
+        }
         const computedPath = dijkstra(startNode, endNode, nodesForDijkstra, connections);
         setPath(computedPath);
     };
 
-    function FloorModel() {
-        const { scene } = useGLTF("/floor1.glb");
-        return <primitive object={scene} />;
-    }
+    // ✅ Parse URL parameters
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const start = searchParams.get("start");
+        const end = searchParams.get("end");
+        const continueToParam = searchParams.get("continueTo");
+        const finalEndParam = searchParams.get("finalEnd");
 
-    function NodeMarkers({ nodes }) {
-        return (
-            <>
-                {Object.entries(nodes).map(([name, { position, rotation }]) => (
-                    <mesh key={name} position={position} rotation={rotation}>
-                        <sphereGeometry args={[0.1, 16, 16]} />
-                        <meshStandardMaterial color="orange" />
-                    </mesh>
-                ))}
-            </>
-        );
-    }
+        if (start && nodesData.nodes[start]) setStartNode(start);
+        if (end && nodesData.nodes[end]) setEndNode(end);
+        if (continueToParam) setContinueTo(continueToParam);
+        if (finalEndParam) setFinalEnd(finalEndParam);
+    }, [location.search]);
 
-    function PathLine({ path, nodes }) {
-        const positions = useMemo(() => {
-            const pts = [];
-            path.forEach((nodeName) => {
-                const pos = nodes[nodeName];
-                if (pos) pts.push(...pos);
-            });
-            return new Float32Array(pts);
-        }, [path, nodes]);
+    useEffect(() => {
+        findPath();
+    }, [startNode, endNode]);
 
-        if (!positions || positions.length < 6) return null;
-        return (
-            <line>
-                <bufferGeometry>
-                    <bufferAttribute
-                        attach="attributes-position"
-                        count={positions.length / 3}
-                        array={positions}
-                        itemSize={3}
-                    />
-                </bufferGeometry>
-                <lineBasicMaterial color="hotpink" linewidth={3} />
-            </line>
-        );
-    }
+    const resetView = () => {
+        if (controlsRef.current) {
+            const cam = controlsRef.current.object;
+            cam.position.set(-7.16, 28.27, -0.02);
+            controlsRef.current.target.set(0, 0, 0);
+            controlsRef.current.update();
+        }
+    };
+
+    const handleContinueNavigation = () => {
+        if (!continueTo || !finalEnd) return;
+
+        try {
+            const url = new URL(continueTo, window.location.origin);
+            url.searchParams.set("end", finalEnd);
+            navigate(url.pathname + url.search);
+        } catch (error) {
+            console.error("Invalid continueTo URL:", continueTo);
+        }
+    };
 
     return (
-        <div style={{ height: "100vh", width: "100vw" }}>
-            {/* Navigation UI Panel */}
-            <div style={{ position: "absolute", top: 20, left: 20, zIndex: 1, background: "#fff", padding: "10px", borderRadius: "4px" }}>
-                <h3>Navigation 1er étage</h3>
-                <div>
-                    <label>Start Node: </label>
-                    <select value={startNode} onChange={(e) => setStartNode(e.target.value)}>
-                        {Object.keys(nodesState).map((name) => (
-                            <option key={name} value={name}>{name}</option>
-                        ))}
-                    </select>
+        <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
+                    {/* Header displaying start → end nodes */}
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: 20,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            zIndex: 10,
+                            background: "#ffffffee",
+                            padding: "14px 24px",
+                            borderRadius: "10px",
+                            boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                            fontSize: "18px",
+                            fontWeight: "600",
+                            color: "#333",
+                            maxWidth: "90%",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            fontSize:"10px"
+                        }}
+                    >
+                        <span style={{ color: "#1976d2" }}>{startNode || "Start"}</span>
+                        <span style={{ fontSize: "20px" }}>➡️</span>
+                        <span style={{ color: "#d32f2f" }}>{endNode || "End"}</span>
+                    </div>
+        
+                    {/* Continue Navigation Button */}
+                    {continueTo && finalEnd && (
+                        <button
+                            onClick={handleContinueNavigation}
+                            style={{
+                                position: "absolute",
+                                bottom: 80,
+                                right: 20,
+                                zIndex: 20,
+                                padding: "12px 20px",
+                                fontSize: "16px",
+                                borderRadius: "8px",
+                                border: "none",
+                                backgroundColor: "#ff9800",
+                                color: "white",
+                                cursor: "pointer",
+                                boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
+                                userSelect: "none",
+                            }}
+                        >
+                            ➡️ Continue Navigation
+                        </button>
+                    )}
+        
+                    {/* 3D Canvas */}
+                    <Canvas camera={{ position: [-7.16, 28.27, -0.02], fov: 70 }}>
+                        <ambientLight intensity={0.6} />
+                        <directionalLight position={[5, 10, 5]} intensity={1} />
+                        <OrbitControls ref={controlsRef} />
+                        <group position={[0, 4, 0]}>
+                            <FloorModel />
+                            <NodeMarkers nodes={nodesState} />
+                            {path.length >= 2 && <AnimatedTube path={path} nodes={nodesForDijkstra} />}
+                        </group>
+                    </Canvas>
+        
+                    {/* Reset View Button */}
+                    <button
+                        onClick={resetView}
+                        style={{
+                            position: "absolute",
+                            bottom: 20,
+                            right: 20,
+                            zIndex: 20,
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                            borderRadius: "8px",
+                            border: "none",
+                            backgroundColor: "#28a745",
+                            color: "white",
+                            cursor: "pointer",
+                            boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
+                            userSelect: "none",
+                        }}
+                    >
+                        🔄 Reset View
+                    </button>
                 </div>
-                <div>
-                    <label>End Node: </label>
-                    <select value={endNode} onChange={(e) => setEndNode(e.target.value)}>
-                        {Object.keys(nodesState).map((name) => (
-                            <option key={name} value={name}>{name}</option>
-                        ))}
-                    </select>
-                </div>
-                <button onClick={findPath} style={{ marginTop: "10px" }}>Find Path</button>
-            </div>
-            <Canvas camera={{ position: [-7.16, 28.27, -0.02], fov: 70 }}>
-                <ambientLight intensity={0.6} />
-                <directionalLight position={[5, 10, 5]} intensity={1} />
-                <OrbitControls />
-                <group position={[0, 4, 0]}>
-                    <FloorModel />
-                    <NodeMarkers nodes={nodesState} />
-                    {path.length >= 2 && <PathLine path={path} nodes={nodesForDijkstra} />}
-                </group>
-            </Canvas>
-        </div>
-    );
-}
+            );
+
+    }

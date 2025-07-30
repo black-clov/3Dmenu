@@ -1,12 +1,19 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF, useProgress } from "@react-three/drei";
 import * as THREE from "three";
 import { dijkstra } from "./Dijkstra";
 import nodesData from "./nodes_connections_floor0.json";
 import "./styles.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const connections = nodesData.connections;
+
+const hiddenNodes = new Set([
+    "Hallway1", "Hallway2", "parent_s1", "parent_ss1", "unkown_floor0_1", "parent_s2", "unkown_floor0_2",
+    "Hallway3", "Hallway4", "Hallway5", "Hallway6", "Hallway7", "parent_s3", "unkown_floor0_3",
+    "Hallway8", "parent_s4", "Hallway9", "parent_s5", "parent_ss5", ""
+]);
 
 const getInitialNodes = () => {
     const nodes = {};
@@ -19,8 +26,14 @@ const getInitialNodes = () => {
     return nodes;
 };
 
-function FloorModel() {
+function FloorModel({ onLoaded }) {
     const { scene } = useGLTF("/floor0.glb");
+
+    // Notify parent when model is loaded
+    useEffect(() => {
+        if (onLoaded) onLoaded();
+    }, [onLoaded]);
+
     return <primitive object={scene} />;
 }
 
@@ -30,7 +43,12 @@ function NodeMarkers({ nodes }) {
             {Object.entries(nodes).map(([name, { position, rotation }]) => (
                 <mesh key={name} position={position} rotation={rotation}>
                     <sphereGeometry args={[0.1, 16, 16]} />
-                    <meshStandardMaterial color="black" />
+                    <meshStandardMaterial
+                        color="white"
+                        transparent={true}
+                        opacity={0}          // Completely invisible
+                        depthWrite={false}   // Prevent z-buffer interference
+                    />
                 </mesh>
             ))}
         </>
@@ -50,51 +68,45 @@ function AnimatedTube({ path, nodes }) {
     const [t, setT] = useState(0);
 
     useFrame(({ clock }) => {
-        const nextT = (t + 0.005) % 1; // loop 0->1
+        const nextT = (t + 0.005) % 1;
         setT(nextT);
 
-        // Move yellow marker along the path
         if (markerRef.current) {
             const point = curve.getPointAt(nextT);
             markerRef.current.position.copy(point);
         }
 
-        // Pulsate scale animation for start and end spheres
         const scale = 1 + 0.3 * Math.sin(clock.getElapsedTime() * 3);
         if (startRef.current) startRef.current.scale.set(scale, scale, scale);
         if (endRef.current) endRef.current.scale.set(scale, scale, scale);
     });
 
     useEffect(() => {
-        setT(0); // restart animation when path changes
+        setT(0);
     }, [path]);
 
     if (path.length < 2) return null;
 
     return (
         <>
-            {/* Path Tube */}
             <mesh ref={tubeRef}>
                 <tubeGeometry args={[curve, 100, 0.05, 8, false]} />
-                <meshStandardMaterial color="green" />
+                <meshStandardMaterial color="white" />
             </mesh>
 
-            {/* Moving Marker */}
             <mesh ref={markerRef}>
                 <sphereGeometry args={[0.1, 16, 16]} />
-                <meshStandardMaterial color="yellow" emissive="yellow" emissiveIntensity={1} />
+                <meshStandardMaterial color="red" emissive="red" emissiveIntensity={1} />
             </mesh>
 
-            {/* Start Sign (green, pulsating) */}
             <mesh ref={startRef} position={nodes[path[0]]}>
                 <sphereGeometry args={[0.15, 16, 16]} />
-                <meshStandardMaterial color="green" emissive="green" emissiveIntensity={0.8} />
+                <meshStandardMaterial color="red" emissive="red" emissiveIntensity={0.8} />
             </mesh>
 
-            {/* End Sign (red, pulsating) */}
             <mesh ref={endRef} position={nodes[path[path.length - 1]]}>
                 <sphereGeometry args={[0.15, 16, 16]} />
-                <meshStandardMaterial color="red" emissive="red" emissiveIntensity={0.8} />
+                <meshStandardMaterial color="green" emissive="green" emissiveIntensity={0.8} />
             </mesh>
         </>
     );
@@ -102,14 +114,24 @@ function AnimatedTube({ path, nodes }) {
 
 export default function Floor0() {
     const [nodesState] = useState(getInitialNodes);
-    const [startNode, setStartNode] = useState("Acceuil");
-    const [endNode, setEndNode] = useState("Hallway1");
+    const [startNode, setStartNode] = useState("Escalier1 1er & 2éme étage");
+    const [endNode, setEndNode] = useState("Acceuil");
     const [path, setPath] = useState([]);
+    const navigate = useNavigate();
+    const location = useLocation();
 
-    // Ref for OrbitControls to reset camera
+    // Using useProgress to detect loading
+    const { active, progress } = useProgress();
+
+    // Show loading spinner while active and progress < 100
+    const loading = active && progress < 100;
+
+    // Multi-floor continuation
+    const [continueTo, setContinueTo] = useState(null);
+    const [finalEnd, setFinalEnd] = useState(null);
+
     const controlsRef = useRef();
 
-    // Prepare nodes for Dijkstra
     const nodesForDijkstra = useMemo(() => {
         const out = {};
         for (const key in nodesState) {
@@ -119,29 +141,33 @@ export default function Floor0() {
     }, [nodesState]);
 
     const findPath = () => {
+        if (!startNode || !endNode) {
+            setPath([]);
+            return;
+        }
         const computedPath = dijkstra(startNode, endNode, nodesForDijkstra, connections);
         setPath(computedPath);
     };
 
-    // Read URL params on mount
+    // Parse URL parameters on mount and location change
     useEffect(() => {
-        const searchParams = new URLSearchParams(window.location.search);
+        const searchParams = new URLSearchParams(location.search);
         const start = searchParams.get("start");
         const end = searchParams.get("end");
-        if (start && nodesData.nodes[start]) {
-            setStartNode(start);
-        }
-        if (end && nodesData.nodes[end]) {
-            setEndNode(end);
-        }
-    }, []);
+        const continueToParam = searchParams.get("continueTo");
+        const finalEndParam = searchParams.get("finalEnd");
 
-    // Auto-find path when start or end changes
+        if (start && nodesData.nodes[start]) setStartNode(start);
+        if (end && nodesData.nodes[end]) setEndNode(end);
+        if (continueToParam) setContinueTo(continueToParam);
+        if (finalEndParam) setFinalEnd(finalEndParam);
+    }, [location.search]);
+
+    // Recalculate path when start or end nodes change
     useEffect(() => {
         findPath();
     }, [startNode, endNode]);
 
-    // Reset camera and controls target
     const resetView = () => {
         if (controlsRef.current) {
             const cam = controlsRef.current.object;
@@ -151,65 +177,116 @@ export default function Floor0() {
         }
     };
 
+    const handleContinueNavigation = () => {
+        if (!continueTo || !finalEnd) return;
+
+        try {
+            const url = new URL(continueTo, window.location.origin);
+            url.searchParams.set("end", finalEnd);
+            navigate(url.pathname + url.search);
+        } catch (error) {
+            console.error("Invalid continueTo URL:", continueTo);
+        }
+    };
+
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
-            {/* UI Controls */}
+            {/* Loading spinner overlay */}
+            {loading && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(255,255,255,0.85)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 100,
+                    }}
+                >
+                    <div className="spinner" />
+                </div>
+            )}
+
+            {/* Header displaying start → end nodes */}
             <div
                 style={{
                     position: "absolute",
                     top: 20,
-                    left: 20,
+                    left: "50%",
+                    transform: "translateX(-50%)",
                     zIndex: 10,
                     background: "#ffffffee",
-                    padding: "12px",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-                    width: "260px",
+                    padding: "14px 24px",
+                    borderRadius: "10px",
+                    boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    fontWeight: "600",
+                    color: "#333",
+                    maxWidth: "90%",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    fontSize: "10px",
                 }}
             >
-                <h3 style={{ marginBottom: "12px", fontSize: "16px" }}>Navigation Rez de Chaussée</h3>
-
-                <label style={{ fontSize: "14px" }}>Start Node:</label>
-                <select
-                    value={startNode}
-                    onChange={(e) => setStartNode(e.target.value)}
-                    style={{ width: "100%", padding: "6px", marginBottom: "10px" }}
-                >
-                    {Object.keys(nodesState).map((name) => (
-                        <option key={name} value={name}>
-                            {name}
-                        </option>
-                    ))}
-                </select>
-
-                <label style={{ fontSize: "14px" }}>End Node:</label>
-                <select
-                    value={endNode}
-                    onChange={(e) => setEndNode(e.target.value)}
-                    style={{ width: "100%", padding: "6px", marginBottom: "10px" }}
-                >
-                    {Object.keys(nodesState).map((name) => (
-                        <option key={name} value={name}>
-                            {name}
-                        </option>
-                    ))}
-                </select>
-
-                <button
-                    onClick={findPath}
+                <span style={{ color: "#1976d2" }}>{startNode || "Start"}</span>
+                <span style={{ fontSize: "20px" }}>➡️</span>
+                <span
                     style={{
-                        width: "100%",
-                        padding: "10px",
-                        backgroundColor: "#007bff",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
+                        color: "#d32f2f",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
                     }}
                 >
-                    Find Path
-                </button>
+                    {endNode || "End"}
+
+                    {/* Animated Stairs Arrow Icon (only if going to next floor) */}
+                    {continueTo && finalEnd && (
+                        <span
+                            style={{
+                                display: "inline-block",
+                                animation: "bounce 1s infinite",
+                                fontSize: "20px",
+                                color: "#ff5722",
+                            }}
+                            title="Go Upstairs"
+                        >
+                            ⬆️
+                        </span>
+                    )}
+                </span>
             </div>
+
+            {/* Continue Navigation Button */}
+            {continueTo && finalEnd && (
+                <button
+                    onClick={handleContinueNavigation}
+                    style={{
+                        position: "absolute",
+                        bottom: 80,
+                        right: 20,
+                        zIndex: 20,
+                        padding: "12px 20px",
+                        fontSize: "16px",
+                        borderRadius: "8px",
+                        border: "none",
+                        backgroundColor: "#ff9800",
+                        color: "white",
+                        cursor: "pointer",
+                        boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
+                        userSelect: "none",
+                    }}
+                >
+                    ➡️ Continue Navigation
+                </button>
+            )}
 
             {/* 3D Canvas */}
             <Canvas camera={{ position: [-7.16, 28.27, -0.02], fov: 70 }}>
@@ -217,7 +294,7 @@ export default function Floor0() {
                 <directionalLight position={[5, 10, 5]} intensity={1} />
                 <OrbitControls ref={controlsRef} />
                 <group position={[0, 4, 0]}>
-                    <FloorModel />
+                    <FloorModel onLoaded={() => { }} />
                     <NodeMarkers nodes={nodesState} />
                     {path.length >= 2 && <AnimatedTube path={path} nodes={nodesForDijkstra} />}
                 </group>
@@ -244,6 +321,28 @@ export default function Floor0() {
             >
                 🔄 Reset View
             </button>
+
+            {/* Styles */}
+            <style>{`
+        .spinner {
+          border: 6px solid #eee;
+          border-top: 6px solid #1976d2;
+          border-radius: 50%;
+          width: 48px;
+          height: 48px;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg);}
+          100% { transform: rotate(360deg);}
+        }
+
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+      `}</style>
         </div>
     );
 }

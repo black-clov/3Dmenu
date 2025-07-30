@@ -22,7 +22,7 @@ export default function Scan() {
 
                     if (startNode && pathName) {
                         // Navigate with the query string
-                        navigate(`${pathName}?start=${startNode}`);
+                        navigate(`/destination?start=${startNode}`);
                     } else {
                         console.warn("Invalid QR data");
                     }
