@@ -1,18 +1,22 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF, useProgress } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { dijkstra } from "./Dijkstra";
-import nodesData from "./nodes_connections_floor0.json";
+import nodesData from "./nodes_connections_floor2.json";
 import "./styles.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const connections = nodesData.connections;
 
 const hiddenNodes = new Set([
-    "Hallway1", "Hallway2", "parent_s1", "parent_ss1", "unkown_floor0_1", "parent_s2", "unkown_floor0_2",
-    "Hallway3", "Hallway4", "Hallway5", "Hallway6", "Hallway7", "parent_s3", "unkown_floor0_3",
-    "Hallway8", "parent_s4", "Hallway9", "parent_s5", "parent_ss5", ""
+    "i1", "i2", "i3", "i4", "i5", "i6", "i7", "i8", "i9", "i10",
+    "i11", "i13", "i14", "i15", "i16", "i17", "i18", "i20", "i21", "i22",
+    "i23", "i24", "i25", "i26", "i27", "i28", "i29", "i30", "i31", "i32",
+    "i33", "i34", "i35", "i36", "i37", "i38", "i39", "i40", "i41","i42","i43","i44","i46","i47","i48",
+    "Unkown1", "Unkown2", "Unkown3", "Unkown4", "Unkown5", "Unkown6", "Unkown7", "Unkown8", "Unkown9", "Unkown10", "Unkown12", "Unkown13", "Unkown14",
+    "Unkown15", "Unkown16", "Unkown17", "Unkown18", "Unkown19", "Unkown21", "Unkown22", "Unkown24", "Unkown25", "Unkown26", "Unkown27", "Unkown28",
+    "Unkown29", "Unkown30","Unkown31",""
 ]);
 
 const getInitialNodes = () => {
@@ -26,14 +30,8 @@ const getInitialNodes = () => {
     return nodes;
 };
 
-function FloorModel({ onLoaded }) {
-    const { scene } = useGLTF("/floor0.glb");
-
-    // Notify parent when model is loaded
-    useEffect(() => {
-        if (onLoaded) onLoaded();
-    }, [onLoaded]);
-
+function FloorModel() {
+    const { scene } = useGLTF("/floor2.glb");
     return <primitive object={scene} />;
 }
 
@@ -43,7 +41,12 @@ function NodeMarkers({ nodes }) {
             {Object.entries(nodes).map(([name, { position, rotation }]) => (
                 <mesh key={name} position={position} rotation={rotation}>
                     <sphereGeometry args={[0.1, 16, 16]} />
-                    <meshStandardMaterial color="black" />
+                    <meshStandardMaterial
+                        color="white"
+                        transparent={true}
+                        opacity={0}          // Completely invisible
+                        depthWrite={false}   // Prevent z-buffer interference
+                    />
                 </mesh>
             ))}
         </>
@@ -107,19 +110,14 @@ function AnimatedTube({ path, nodes }) {
     );
 }
 
-export default function Floor0() {
+
+export default function Floor1() {
     const [nodesState] = useState(getInitialNodes);
-    const [startNode, setStartNode] = useState("Escalier1 1er & 2éme étage");
-    const [endNode, setEndNode] = useState("Acceuil");
+    const [startNode, setStartNode] = useState("Escalier1 1er etage, Rez de chausse");
+    const [endNode, setEndNode] = useState("Escalier1 1er etage, Rez de chausse");
     const [path, setPath] = useState([]);
     const navigate = useNavigate();
     const location = useLocation();
-
-    // Using useProgress to detect loading
-    const { active, progress } = useProgress();
-
-    // Show loading spinner while active and progress < 100
-    const loading = active && progress < 100;
 
     // Multi-floor continuation
     const [continueTo, setContinueTo] = useState(null);
@@ -144,7 +142,7 @@ export default function Floor0() {
         setPath(computedPath);
     };
 
-    // Parse URL parameters on mount and location change
+    // ✅ Parse URL parameters
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const start = searchParams.get("start");
@@ -158,7 +156,6 @@ export default function Floor0() {
         if (finalEndParam) setFinalEnd(finalEndParam);
     }, [location.search]);
 
-    // Recalculate path when start or end nodes change
     useEffect(() => {
         findPath();
     }, [startNode, endNode]);
@@ -186,158 +183,94 @@ export default function Floor0() {
 
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
-            {/* Loading spinner overlay */}
-            {loading && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "rgba(255,255,255,0.85)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 100,
-                    }}
-                >
-                    <div className="spinner" />
-                </div>
-            )}
-
-            {/* Header displaying start → end nodes */}
-            <div
-                style={{
-                    position: "absolute",
-                    top: 20,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    zIndex: 10,
-                    background: "#ffffffee",
-                    padding: "14px 24px",
-                    borderRadius: "10px",
-                    boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    fontWeight: "600",
-                    color: "#333",
-                    maxWidth: "90%",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                }}
-            >
-                <span style={{ color: "#1976d2" }}>{startNode || "Start"}</span>
-                <span style={{ fontSize: "20px" }}>➡️</span>
-                <span
-                    style={{
-                        color: "#d32f2f",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                    }}
-                >
-                    {endNode || "End"}
-
-                    {/* Animated Stairs Arrow Icon (only if going to next floor) */}
+                    {/* Header displaying start → end nodes */}
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: 20,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            zIndex: 10,
+                            background: "#ffffffee",
+                            padding: "14px 24px",
+                            borderRadius: "10px",
+                            boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                            fontSize: "18px",
+                            fontWeight: "600",
+                            color: "#333",
+                            maxWidth: "90%",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            fontSize:"10px"
+                        }}
+                    >
+                        <span style={{ color: "#1976d2" }}>{startNode || "Start"}</span>
+                        <span style={{ fontSize: "20px" }}>➡️</span>
+                        <span style={{ color: "#d32f2f" }}>{endNode || "End"}</span>
+                    </div>
+        
+                    {/* Continue Navigation Button */}
                     {continueTo && finalEnd && (
-                        <span
+                        <button
+                            onClick={handleContinueNavigation}
                             style={{
-                                display: "inline-block",
-                                animation: "bounce 1s infinite",
-                                fontSize: "20px",
-                                color: "#ff5722",
+                                position: "absolute",
+                                bottom: 80,
+                                right: 20,
+                                zIndex: 20,
+                                padding: "12px 20px",
+                                fontSize: "16px",
+                                borderRadius: "8px",
+                                border: "none",
+                                backgroundColor: "#ff9800",
+                                color: "white",
+                                cursor: "pointer",
+                                boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
+                                userSelect: "none",
                             }}
-                            title="Go Upstairs"
                         >
-                            ⬆️
-                        </span>
+                            ➡️ Continue Navigation
+                        </button>
                     )}
-                </span>
-            </div>
+        
+                    {/* 3D Canvas */}
+                    <Canvas camera={{ position: [-7.16, 28.27, -0.02], fov: 70 }}>
+                        <ambientLight intensity={0.6} />
+                        <directionalLight position={[5, 10, 5]} intensity={1} />
+                        <OrbitControls ref={controlsRef} />
+                        <group position={[0, 4, 0]}>
+                            <FloorModel />
+                            <NodeMarkers nodes={nodesState} />
+                            {path.length >= 2 && <AnimatedTube path={path} nodes={nodesForDijkstra} />}
+                        </group>
+                    </Canvas>
+        
+                    {/* Reset View Button */}
+                    <button
+                        onClick={resetView}
+                        style={{
+                            position: "absolute",
+                            bottom: 20,
+                            right: 20,
+                            zIndex: 20,
+                            padding: "10px 15px",
+                            fontSize: "14px",
+                            borderRadius: "8px",
+                            border: "none",
+                            backgroundColor: "#28a745",
+                            color: "white",
+                            cursor: "pointer",
+                            boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
+                            userSelect: "none",
+                        }}
+                    >
+                        🔄 Reset View
+                    </button>
+                </div>
+            );
 
-            {/* Continue Navigation Button */}
-            {continueTo && finalEnd && (
-                <button
-                    onClick={handleContinueNavigation}
-                    style={{
-                        position: "absolute",
-                        bottom: 80,
-                        right: 20,
-                        zIndex: 20,
-                        padding: "12px 20px",
-                        fontSize: "16px",
-                        borderRadius: "8px",
-                        border: "none",
-                        backgroundColor: "#ff9800",
-                        color: "white",
-                        cursor: "pointer",
-                        boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
-                        userSelect: "none",
-                    }}
-                >
-                    ➡️ Continue Navigation
-                </button>
-            )}
-
-            {/* 3D Canvas */}
-            <Canvas camera={{ position: [-7.16, 28.27, -0.02], fov: 70 }}>
-                <ambientLight intensity={0.6} />
-                <directionalLight position={[5, 10, 5]} intensity={1} />
-                <OrbitControls ref={controlsRef} />
-                <group position={[0, 4, 0]}>
-                    <FloorModel onLoaded={() => { }} />
-                    <NodeMarkers nodes={nodesState} />
-                    {path.length >= 2 && <AnimatedTube path={path} nodes={nodesForDijkstra} />}
-                </group>
-            </Canvas>
-
-            {/* Reset View Button */}
-            <button
-                onClick={resetView}
-                style={{
-                    position: "absolute",
-                    bottom: 20,
-                    right: 20,
-                    zIndex: 20,
-                    padding: "10px 15px",
-                    fontSize: "14px",
-                    borderRadius: "8px",
-                    border: "none",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    cursor: "pointer",
-                    boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
-                    userSelect: "none",
-                }}
-            >
-                🔄 Reset View
-            </button>
-
-            {/* Styles */}
-            <style>{`
-        .spinner {
-          border: 6px solid #eee;
-          border-top: 6px solid #1976d2;
-          border-radius: 50%;
-          width: 48px;
-          height: 48px;
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg);}
-          100% { transform: rotate(360deg);}
-        }
-
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-      `}</style>
-        </div>
-    );
-}
+    }

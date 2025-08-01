@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import { dijkstra } from "./Dijkstra";
-import initialNodesData from "./nodes_connections_floor1.json";
+import initialNodesData from "./nodes_connections_floor3.json";
 import "./styles.css";
 
 const connections = initialNodesData.connections;
@@ -21,8 +21,8 @@ const getInitialNodes = () => {
 
 export default function App() {
   const [nodesState, setNodesState] = useState(getInitialNodes);
-  const [startNode, setStartNode] = useState("Entrée 1er étage_0");
-  const [endNode, setEndNode] = useState("Entrée 1er étage_1");
+  const [startNode, setStartNode] = useState("Escalier_RezDeJardin_1");
+  const [endNode, setEndNode] = useState("Escalier_RezDeJardin_1");
   const [path, setPath] = useState([]);
 
   const [selectedEditNode, setSelectedEditNode] = useState(Object.keys(nodesState)[0] || "");
@@ -109,7 +109,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "nodes_connections_floor1.json";
+    a.download = "nodes_connections_floor3.json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -117,7 +117,7 @@ export default function App() {
   };
 
   function FloorModel() {
-    const { scene } = useGLTF("/floor1.glb");
+    const { scene } = useGLTF("/floor3.glb");
     return <primitive object={scene} />;
   }
 

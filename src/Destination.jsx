@@ -2,209 +2,308 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import floor0Data from "./nodes_connections_floor0.json";
 import floor1Data from "./nodes_connections_floor1.json";
+import floor2Data from "./nodes_connections_floor2.json";
 
 const Destination = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dropdownRef = useRef(null);
 
-    const [startNode, setStartNode] = useState("");
-    const [selectedEndNode, setSelectedEndNode] = useState("");
-    const [floor0Nodes, setFloor0Nodes] = useState([]);
-    const [floor1Nodes, setFloor1Nodes] = useState([]);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [openFloor, setOpenFloor] = useState(null); // 'floor0' or 'floor1'
+  const [startNode, setStartNode] = useState("");
+  const [selectedEndNode, setSelectedEndNode] = useState("");
+  const [floor0Nodes, setFloor0Nodes] = useState([]);
+  const [floor1Nodes, setFloor1Nodes] = useState([]);
+  const [floor2Nodes, setFloor2Nodes] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [openFloor, setOpenFloor] = useState(null); // 'floor0' or 'floor1' or 'floor2
 
-    // Hidden nodes for each floor
-    const hiddenNodes_floor0 = new Set(["Hallway1", "Hallway2", "parent_s1", "parent_ss1", "unkown_floor0_1", "parent_s2", "unkown_floor0_2",
-        "Hallway3", "Hallway4", "Hallway5", "Hallway6", "Hallway7", "parent_s3", "unkown_floor0_3",
-        "Hallway8", "parent_s4", "Hallway9", "parent_s5", "parent_ss5", ""]);
-    const hiddenNodes_floor1 = new Set(["inter1", "inter2", "inter3", "inter4", "inter5", "inter6", "inter7", "inter8", "inter9", "inter10", "inter11", "inter12", "inter13", "inter14", "inter15", "inter16", "inter17", "inter18", "inter19", "inter20", "inter21", "inter22", "inter23", "inter24", "inter25", "inter26", "inter27", "inter28", "inter29", "inter30", "inter31", "inter32", "inter33", "inter34", "inter35", "inter36", "inter37", "inter38",""]);
+  // Hidden nodes for each floor
+  const hiddenNodes_floor0 = new Set(["Hallway1", "Hallway2", "parent_s1", "parent_ss1", "unkown_floor0_1", "parent_s2", "unkown_floor0_2",
+    "Hallway3", "Hallway4", "Hallway5", "Hallway6", "Hallway7", "parent_s3", "unkown_floor0_3",
+    "Hallway8", "parent_s4", "Hallway9", "parent_s5", "parent_ss5", ""]);
+  const hiddenNodes_floor1 = new Set(["inter1", "inter2", "inter3", "inter4", "inter5", "inter6", "inter7", "inter8", "inter9", "inter10", "inter11", "inter12", "inter13", "inter14", "inter15", "inter16", "inter17", "inter18", "inter19", "inter20", "inter21", "inter22", "inter23", "inter24", "inter25", "inter26", "inter27", "inter28", "inter29", "inter30", "inter31", "inter32", "inter33", "inter34", "inter35", "inter36", "inter37", "inter38", ""]);
+  const hiddenNodes_floor2 = new Set(["i1", "i2", "i3", "i4", "i5", "i6", "i7", "i8", "i9", "i10",
+    "i11", "i13", "i14", "i15", "i16", "i17", "i18", "i20", "i21", "i22",
+    "i23", "i24", "i25", "i26", "i27", "i28", "i29", "i30", "i31", "i32",
+    "i33", "i34", "i35", "i36", "i37", "i38", "i39", "i40", "i41", "i42", "i43", "i44", "i46", "i47", "i48",
+    "Unkown1", "Unkown2", "Unkown3", "Unkown4", "Unkown5", "Unkown6", "Unkown7", "Unkown8", "Unkown9", "Unkown10", "Unkown12", "Unkown13", "Unkown14",
+    "Unkown15", "Unkown16", "Unkown17", "Unkown18", "Unkown19", "Unkown21", "Unkown22", "Unkown24", "Unkown25", "Unkown26", "Unkown27", "Unkown28",
+    "Unkown29", "Unkown30", "Unkown31", ""]);
 
-    // Maps for case-insensitive key lookup
-    const floor0LowerMap = {};
-    for (const key of Object.keys(floor0Data.nodes)) {
-        floor0LowerMap[key.toLowerCase()] = key;
-    }
-    const floor1LowerMap = {};
-    for (const key of Object.keys(floor1Data.nodes)) {
-        floor1LowerMap[key.toLowerCase()] = key;
-    }
+  // Maps for case-insensitive key lookup
+  const floor0LowerMap = {};
+  for (const key of Object.keys(floor0Data.nodes)) {
+    floor0LowerMap[key.toLowerCase()] = key;
+  }
+  const floor1LowerMap = {};
+  for (const key of Object.keys(floor1Data.nodes)) {
+    floor1LowerMap[key.toLowerCase()] = key;
+  }
+  const floor2LowerMap = {};
+  for (const key of Object.keys(floor2Data.nodes)) {
+    floor2LowerMap[key.toLowerCase()] = key;
+  }
 
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const start = params.get("start");
-        setStartNode(start || "");
-        setSelectedEndNode(""); // reset selected destination on start change
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const start = params.get("start");
+    setStartNode(start || "");
+    setSelectedEndNode(""); // reset selected destination on start change
 
-        const floor0Keys = Object.keys(floor0Data.nodes || {});
-        const floor1Keys = Object.keys(floor1Data.nodes || {});
+    const floor0Keys = Object.keys(floor0Data.nodes || {});
+    const floor1Keys = Object.keys(floor1Data.nodes || {});
+    const floor2Keys = Object.keys(floor2Data.nodes || {});
 
-        const isStartInFloor0 = floor0Keys.includes(start);
-        const isStartInFloor1 = floor1Keys.includes(start);
+    const isStartInFloor0 = floor0Keys.includes(start);
+    const isStartInFloor1 = floor1Keys.includes(start);
+    const isStartInFloor2 = floor2Keys.includes(start);
 
-        // Filter out startNode and hidden nodes for floor0
-        const filteredFloor0 = (isStartInFloor0
-            ? floor0Keys.filter((k) => k !== start)
-            : floor0Keys
-        ).filter((node) => !hiddenNodes_floor0.has(node));
+    // Filter out startNode and hidden nodes for floor0
+    const filteredFloor0 = (isStartInFloor0
+      ? floor0Keys.filter((k) => k !== start)
+      : floor0Keys
+    ).filter((node) => !hiddenNodes_floor0.has(node));
 
-        // Filter out startNode and hidden nodes for floor1
-        const filteredFloor1 = (isStartInFloor1
-            ? floor1Keys.filter((k) => k !== start)
-            : floor1Keys
-        ).filter((node) => !hiddenNodes_floor1.has(node));
+    // Filter out startNode and hidden nodes for floor1
+    const filteredFloor1 = (isStartInFloor1
+      ? floor1Keys.filter((k) => k !== start)
+      : floor1Keys
+    ).filter((node) => !hiddenNodes_floor1.has(node));
 
-        setFloor0Nodes(filteredFloor0);
-        setFloor1Nodes(filteredFloor1);
-    }, [location.search]);
+    const filteredFloor2 = (isStartInFloor2
+      ? floor2Keys.filter((k) => k !== start)
+      : floor2Keys
+    ).filter((node) => !hiddenNodes_floor2.has(node));
 
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setDropdownOpen(false);
-                setOpenFloor(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    setFloor0Nodes(filteredFloor0);
+    setFloor1Nodes(filteredFloor1);
+    setFloor2Nodes(filteredFloor2);
+  }, [location.search]);
 
-    const handleNodeSelect = (node) => {
-        setSelectedEndNode(node);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
         setOpenFloor(null);
+      }
     };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    const handleFindPath = () => {
-        if (!startNode || !selectedEndNode) {
-            alert("Please select both start and destination nodes.");
-            return;
-        }
+  const handleNodeSelect = (node) => {
+    setSelectedEndNode(node);
+    setDropdownOpen(false);
+    setOpenFloor(null);
+  };
 
-        const normalizedStart = startNode.trim().toLowerCase();
-        const normalizedEnd = selectedEndNode.trim().toLowerCase();
+  const handleFindPath = () => {
+    if (!startNode || !selectedEndNode) {
+      alert("Please select both start and destination nodes.");
+      return;
+    }
 
-        const startInFloor0Key = floor0LowerMap[normalizedStart];
-        const startInFloor1Key = floor1LowerMap[normalizedStart];
-        const endInFloor0Key = floor0LowerMap[normalizedEnd];
-        const endInFloor1Key = floor1LowerMap[normalizedEnd];
+    const normalizedStart = startNode.trim().toLowerCase();
+    const normalizedEnd = selectedEndNode.trim().toLowerCase();
 
-        const isStartInFloor0 = Boolean(startInFloor0Key);
-        const isStartInFloor1 = Boolean(startInFloor1Key);
-        const isEndInFloor0 = Boolean(endInFloor0Key);
-        const isEndInFloor1 = Boolean(endInFloor1Key);
+    const startInFloor0Key = floor0LowerMap[normalizedStart];
+    const startInFloor1Key = floor1LowerMap[normalizedStart];
+    const startInFloor2Key = floor2LowerMap[normalizedStart];
+    const endInFloor0Key = floor0LowerMap[normalizedEnd];
+    const endInFloor1Key = floor1LowerMap[normalizedEnd];
+    const endInFloor2Key = floor2LowerMap[normalizedEnd];
 
-        // Same floor navigation
-        if ((isStartInFloor0 && isEndInFloor0) || (isStartInFloor1 && isEndInFloor1)) {
-            const floorPath = isStartInFloor0 ? "/floor" : "/floor1";
-            navigate(
-                `${floorPath}?start=${encodeURIComponent(startInFloor0Key || startInFloor1Key)}&end=${encodeURIComponent(endInFloor0Key || endInFloor1Key)}`
-            );
-            return;
-        }
+    const isStartInFloor0 = Boolean(startInFloor0Key);
+    const isStartInFloor1 = Boolean(startInFloor1Key);
+    const isStartInFloor2 = Boolean(startInFloor2Key);
+    const isEndInFloor0 = Boolean(endInFloor0Key);
+    const isEndInFloor1 = Boolean(endInFloor1Key);
+    const isEndInFloor2 = Boolean(endInFloor2Key);
 
-        // Multi-floor navigation: floor0 -> floor1
-        if (isStartInFloor0 && isEndInFloor1) {
-            navigate(
-                `/floor?start=${encodeURIComponent(startInFloor0Key)}&end=${encodeURIComponent("Escalier1 1er & 2éme étage")}` +
-                `&continueTo=/floor1?start=${encodeURIComponent("Entrée 1er étage_0")}&finalEnd=${encodeURIComponent(endInFloor1Key)}`
-            );
-            return;
-        }
+    // Same floor navigation
+    if (
+      (isStartInFloor0 && isEndInFloor0) ||
+      (isStartInFloor1 && isEndInFloor1) ||
+      (isStartInFloor2 && isEndInFloor2)
+    ) {
+      const floorPath = isStartInFloor0
+        ? "/floor"
+        : isStartInFloor1
+          ? "/floor1"
+          : "/floor2";
 
-        // Multi-floor navigation: floor1 -> floor0 with continue button logic
-        if (isStartInFloor1 && isEndInFloor0) {
-            navigate(
-                `/floor1?start=${encodeURIComponent(startInFloor1Key)}&end=${encodeURIComponent("Entrée 1er étage_0")}` +
-                `&continueTo=/floor?start=${encodeURIComponent("Escalier1 1er & 2éme étage")}&finalEnd=${encodeURIComponent(endInFloor0Key)}`
-            );
-            return;
-        }
-    
-       
-       
-        
-        alert("Invalid start or end nodes selected.");
-        console.log("Start Node (normalized):", normalizedStart);
-        console.log("End Node (normalized):", normalizedEnd);
-        console.log("Mapped start floor0 key:", startInFloor0Key);
-        console.log("Mapped start floor1 key:", startInFloor1Key);
-        console.log("Mapped end floor0 key:", endInFloor0Key);
-        console.log("Mapped end floor1 key:", endInFloor1Key);
-    };
+      navigate(
+        `${floorPath}?start=${encodeURIComponent(
+          startInFloor0Key || startInFloor1Key || startInFloor2Key
+        )}&end=${encodeURIComponent(endInFloor0Key || endInFloor1Key || endInFloor2Key)}`
+      );
+      return;
+    }
 
-    // UI return section is omitted as requested
+    // Multi-floor: floor0 → floor1
+    if (isStartInFloor0 && isEndInFloor1) {
+      navigate(
+        `/floor?start=${encodeURIComponent(startInFloor0Key)}&end=${encodeURIComponent("Escalier1 1er & 2éme étage")}` +
+        `&continueTo=/floor1?start=${encodeURIComponent("Entrée 1er étage_0")}&finalEnd=${encodeURIComponent(endInFloor1Key)}`
+      );
+      return;
+    }
 
-  return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>🧭 Choose Your Destination</h1>
+    // Multi-floor: floor1 → floor0
+    if (isStartInFloor1 && isEndInFloor0) {
+      navigate(
+        `/floor1?start=${encodeURIComponent(startInFloor1Key)}&end=${encodeURIComponent("Entrée 1er étage_0")}` +
+        `&continueTo=/floor?start=${encodeURIComponent("Escalier1 1er & 2éme étage")}&finalEnd=${encodeURIComponent(endInFloor0Key)}`
+      );
+      return;
+    }
 
-      <div style={styles.fieldGroup}>
-        <label style={styles.label}>Start Node:</label>
-        <input
-          type="text"
-          value={startNode}
-          readOnly
-          style={{ ...styles.input, backgroundColor: "#eee", fontWeight: "bold" }}
-        />
-      </div>
+    // ✅ Multi-floor: floor2 → floor1
+    if (isStartInFloor2 && isEndInFloor1) {
+      navigate(
+        `/floor2?start=${encodeURIComponent(startInFloor2Key)}&end=${encodeURIComponent("Escalier1 1er etage, Rez de chausse")}` +
+        `&continueTo=/floor1?start=${encodeURIComponent("Entrée 1er étage_0")}&finalEnd=${encodeURIComponent(endInFloor1Key)}`
+      );
+      return;
+    }
 
-      <div style={styles.fieldGroup} ref={dropdownRef}>
-        <label style={styles.label}>Destination Node:</label>
-        <div style={styles.dropdownWrapper} onClick={() => setDropdownOpen(!dropdownOpen)}>
-          <div style={styles.dropdownHeader}>{selectedEndNode || "Select Destination"}</div>
-          {dropdownOpen && (
-            <div style={styles.dropdownMenu}>
-              <div
-                style={styles.floorToggle}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenFloor(openFloor === "floor0" ? null : "floor0");
-                }}
-              >
-                🏢 rez de chaussée{openFloor === "floor0" ? "▲" : "▼"}
-              </div>
-              {openFloor === "floor0" &&
-                floor0Nodes.map((node) => (
-                  <div
-                    key={node}
-                    style={styles.nodeItem}
-                    onClick={() => handleNodeSelect(node)}
-                  >
-                    {node}
-                  </div>
-                ))}
+    // ✅ Multi-floor: floor1 → floor2
+    if (isStartInFloor1 && isEndInFloor2) {
+      navigate(
+        `/floor1?start=${encodeURIComponent(startInFloor1Key)}&end=${encodeURIComponent("Entrée 1er étage_0")}` +
+        `&continueTo=/floor2?start=${encodeURIComponent("Escalier1 1er etage, Rez de chausse")}&finalEnd=${encodeURIComponent(endInFloor2Key)}`
+      );
+      return;
+    }
 
-              <div
-                style={styles.floorToggle}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenFloor(openFloor === "floor1" ? null : "floor1");
-                }}
-              >
-                🏢 1ér étage {openFloor === "floor1" ? "▲" : "▼"}
-              </div>
-              {openFloor === "floor1" &&
-                floor1Nodes.map((node) => (
-                  <div
-                    key={node}
-                    style={styles.nodeItem}
-                    onClick={() => handleNodeSelect(node)}
-                  >
-                    {node}
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
-      </div>
+    // ✅ Multi-floor navigation: floor0 → floor2
+    if (isStartInFloor0 && isEndInFloor2) {
+      navigate(
+        `/floor?start=${encodeURIComponent(startInFloor0Key)}&end=${encodeURIComponent("Escalier1 1er & 2éme étage")}` +
+        `&continueTo=/floor2?start=${encodeURIComponent("Escalier1 1er etage, Rez de chausse")}&finalEnd=${encodeURIComponent(endInFloor2Key)}`
+      );
+      return;
+    }
 
-      <button style={styles.findButton} onClick={handleFindPath}>
-        🚀 Find Path
-      </button>
+    // ✅ Multi-floor navigation: floor2 → floor0
+    if (isStartInFloor2 && isEndInFloor0) {
+      navigate(
+        `/floor2?start=${encodeURIComponent(startInFloor2Key)}&end=${encodeURIComponent("Escalier1 1er etage, Rez de chausse")}` +
+        `&continueTo=/floor?start=${encodeURIComponent("Escalier1 1er & 2éme étage")}&finalEnd=${encodeURIComponent(endInFloor0Key)}`
+      );
+      return;
+    }
+
+
+
+
+    alert("Invalid start or end nodes selected.");
+    console.log("Start Node (normalized):", normalizedStart);
+    console.log("End Node (normalized):", normalizedEnd);
+    console.log("Mapped start floor0 key:", startInFloor0Key);
+    console.log("Mapped start floor1 key:", startInFloor1Key);
+    console.log("Mapped start floor1 key:", startInFloor2Key);
+    console.log("Mapped end floor0 key:", endInFloor0Key);
+    console.log("Mapped end floor1 key:", endInFloor1Key);
+    console.log("Mapped end floor2 key:", endInFloor2Key);
+  };
+
+  // UI return section is omitted as requested
+
+return (
+  <div style={styles.container}>
+    <h1 style={styles.title}>🧭 Choose Your Destination</h1>
+
+    <div style={styles.fieldGroup}>
+      <label style={styles.label}>Start Node:</label>
+      <input
+        type="text"
+        value={startNode}
+        readOnly
+        style={{ ...styles.input, backgroundColor: "#eee", fontWeight: "bold" }}
+      />
     </div>
-  );
+
+    <div style={styles.fieldGroup} ref={dropdownRef}>
+      <label style={styles.label}>Destination Node:</label>
+      <div style={styles.dropdownWrapper} onClick={() => setDropdownOpen(!dropdownOpen)}>
+        <div style={styles.dropdownHeader}>{selectedEndNode || "Select Destination"}</div>
+
+        {dropdownOpen && (
+          <div style={styles.dropdownMenu}>
+            {/* Floor 0 */}
+            <div
+              style={styles.floorToggle}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenFloor(openFloor === "floor0" ? null : "floor0");
+              }}
+            >
+              🏢 rez de chaussée {openFloor === "floor0" ? "▲" : "▼"}
+            </div>
+            {openFloor === "floor0" &&
+              floor0Nodes.map((node) => (
+                <div
+                  key={node}
+                  style={styles.nodeItem}
+                  onClick={() => handleNodeSelect(node)}
+                >
+                  {node}
+                </div>
+              ))}
+
+            {/* Floor 1 */}
+            <div
+              style={styles.floorToggle}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenFloor(openFloor === "floor1" ? null : "floor1");
+              }}
+            >
+              🏢 1ér étage {openFloor === "floor1" ? "▲" : "▼"}
+            </div>
+            {openFloor === "floor1" &&
+              floor1Nodes.map((node) => (
+                <div
+                  key={node}
+                  style={styles.nodeItem}
+                  onClick={() => handleNodeSelect(node)}
+                >
+                  {node}
+                </div>
+              ))}
+
+            {/* Floor 2 */}
+            <div
+              style={styles.floorToggle}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenFloor(openFloor === "floor2" ? null : "floor2");
+              }}
+            >
+              🏢 2éme étage {openFloor === "floor2" ? "▲" : "▼"}
+            </div>
+            {openFloor === "floor2" &&
+              floor2Nodes.map((node) => (
+                <div
+                  key={node}
+                  style={styles.nodeItem}
+                  onClick={() => handleNodeSelect(node)}
+                >
+                  {node}
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+    </div>
+
+    <button style={styles.findButton} onClick={handleFindPath}>
+      🚀 Find Path
+    </button>
+  </div>
+);
+
 };
 
 export default Destination;
