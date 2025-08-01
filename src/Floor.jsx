@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useGLTF, useProgress } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls, useGLTF,PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import { dijkstra } from "./Dijkstra";
 import nodesData from "./nodes_connections_floor0.json";
@@ -26,14 +26,8 @@ const getInitialNodes = () => {
     return nodes;
 };
 
-function FloorModel({ onLoaded }) {
+function FloorModel() {
     const { scene } = useGLTF("/floor0.glb");
-
-    // Notify parent when model is loaded
-    useEffect(() => {
-        if (onLoaded) onLoaded();
-    }, [onLoaded]);
-
     return <primitive object={scene} />;
 }
 
@@ -43,12 +37,7 @@ function NodeMarkers({ nodes }) {
             {Object.entries(nodes).map(([name, { position, rotation }]) => (
                 <mesh key={name} position={position} rotation={rotation}>
                     <sphereGeometry args={[0.1, 16, 16]} />
-                    <meshStandardMaterial
-                        color="white"
-                        transparent={true}
-                        opacity={0}          // Completely invisible
-                        depthWrite={false}   // Prevent z-buffer interference
-                    />
+                    <meshStandardMaterial color="white" transparent opacity={0} depthWrite={false} />
                 </mesh>
             ))}
         </>
@@ -112,21 +101,29 @@ function AnimatedTube({ path, nodes }) {
     );
 }
 
-export default function Floor0() {
+function SetupCamera({ controlsRef }) {
+    const { camera } = useThree();
+
+    useEffect(() => {
+        // 🟢 Customize this
+        camera.position.set(-9.16, 33.27, -19.02); // Initial camera position
+        if (controlsRef.current) {
+            controlsRef.current.target.set(390, -660, -10); // Camera rotation target (lookAt)
+            controlsRef.current.update(); // Must call this!
+        }
+    }, [camera, controlsRef]);
+
+    return null;
+}
+
+export default function Floor3() {
     const [nodesState] = useState(getInitialNodes);
     const [startNode, setStartNode] = useState("Escalier1 1er & 2éme étage");
-    const [endNode, setEndNode] = useState("Acceuil");
+    const [endNode, setEndNode] = useState("Escalier1 1er & 2éme étage");
     const [path, setPath] = useState([]);
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Using useProgress to detect loading
-    const { active, progress } = useProgress();
-
-    // Show loading spinner while active and progress < 100
-    const loading = active && progress < 100;
-
-    // Multi-floor continuation
     const [continueTo, setContinueTo] = useState(null);
     const [finalEnd, setFinalEnd] = useState(null);
 
@@ -149,7 +146,6 @@ export default function Floor0() {
         setPath(computedPath);
     };
 
-    // Parse URL parameters on mount and location change
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         const start = searchParams.get("start");
@@ -163,7 +159,6 @@ export default function Floor0() {
         if (finalEndParam) setFinalEnd(finalEndParam);
     }, [location.search]);
 
-    // Recalculate path when start or end nodes change
     useEffect(() => {
         findPath();
     }, [startNode, endNode]);
@@ -171,7 +166,7 @@ export default function Floor0() {
     const resetView = () => {
         if (controlsRef.current) {
             const cam = controlsRef.current.object;
-            cam.position.set(-7.16, 28.27, -0.02);
+            cam.position.set(-9.16, 25.27, 0.02);
             controlsRef.current.target.set(0, 0, 0);
             controlsRef.current.update();
         }
@@ -191,158 +186,102 @@ export default function Floor0() {
 
     return (
         <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
-            {/* Loading spinner overlay */}
-            {loading && (
-                <div
-                    style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "rgba(255,255,255,0.85)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 100,
-                    }}
-                >
-                    <div className="spinner" />
-                </div>
-            )}
-
             {/* Header displaying start → end nodes */}
-            <div
-                style={{
-                    position: "absolute",
-                    top: 20,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    zIndex: 10,
-                    background: "#ffffffee",
-                    padding: "14px 24px",
-                    borderRadius: "10px",
-                    boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    fontWeight: "600",
-                    color: "#333",
-                    maxWidth: "90%",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    fontSize: "10px",
-                }}
-            >
+            <div style={{
+                position: "absolute",
+                top: 20,
+                left: "50%",
+                transform: "translateX(-50%)",
+                zIndex: 10,
+                background: "#ffffffee",
+                padding: "14px 24px",
+                borderRadius: "10px",
+                boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                fontSize: "5px",
+                fontWeight: "600",
+                color: "#333",
+                maxWidth: "90%",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis"
+            }}>
                 <span style={{ color: "#1976d2" }}>{startNode || "Start"}</span>
                 <span style={{ fontSize: "20px" }}>➡️</span>
-                <span
-                    style={{
-                        color: "#d32f2f",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                    }}
-                >
-                    {endNode || "End"}
-
-                    {/* Animated Stairs Arrow Icon (only if going to next floor) */}
-                    {continueTo && finalEnd && (
-                        <span
-                            style={{
-                                display: "inline-block",
-                                animation: "bounce 1s infinite",
-                                fontSize: "20px",
-                                color: "#ff5722",
-                            }}
-                            title="Go Upstairs"
-                        >
-                            ⬆️
-                        </span>
-                    )}
-                </span>
+                <span style={{ color: "#d32f2f" }}>{endNode || "End"}</span>
             </div>
 
             {/* Continue Navigation Button */}
             {continueTo && finalEnd && (
-                <button
-                    onClick={handleContinueNavigation}
-                    style={{
-                        position: "absolute",
-                        bottom: 80,
-                        right: 20,
-                        zIndex: 20,
-                        padding: "12px 20px",
-                        fontSize: "16px",
-                        borderRadius: "8px",
-                        border: "none",
-                        backgroundColor: "#ff9800",
-                        color: "white",
-                        cursor: "pointer",
-                        boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
-                        userSelect: "none",
-                    }}
-                >
+                <button onClick={handleContinueNavigation} style={{
+                    position: "absolute",
+                    bottom: 80,
+                    right: 20,
+                    zIndex: 20,
+                    padding: "12px 20px",
+                    fontSize: "16px",
+                    borderRadius: "8px",
+                    border: "none",
+                    backgroundColor: "#ff9800",
+                    color: "white",
+                    cursor: "pointer",
+                    boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
+                    userSelect: "none"
+                }}>
                     ➡️ Continue Navigation
                 </button>
             )}
 
             {/* 3D Canvas */}
-            <Canvas camera={{ position: [-7.16, 28.27, -0.02], fov: 70 }}>
+            <Canvas>
+                <PerspectiveCamera
+                    makeDefault
+                    position={[-9.16, 25.27, 0.02]}
+                    fov={70}
+                    near={0.1}
+                    far={1000}
+                />
                 <ambientLight intensity={0.6} />
                 <directionalLight position={[5, 10, 5]} intensity={1} />
-                <OrbitControls ref={controlsRef} />
+
+                <OrbitControls
+                    ref={controlsRef}
+                    target={[190, -360, -10]} // your target
+                    enableDamping={true}
+                    dampingFactor={0.05}       // smoother easing
+
+                    rotateSpeed={0.02}          // 🐢 slow camera rotation via drag
+                    zoomSpeed={0.02}            // 🐢 slow pinch / scroll zoom
+                    panSpeed={0.02}             // 🐢 slow panning
+                />
+
                 <group position={[0, 4, 0]}>
-                    <FloorModel onLoaded={() => { }} />
+                    <FloorModel />
                     <NodeMarkers nodes={nodesState} />
                     {path.length >= 2 && <AnimatedTube path={path} nodes={nodesForDijkstra} />}
                 </group>
             </Canvas>
 
             {/* Reset View Button */}
-            <button
-                onClick={resetView}
-                style={{
-                    position: "absolute",
-                    bottom: 20,
-                    right: 20,
-                    zIndex: 20,
-                    padding: "10px 15px",
-                    fontSize: "14px",
-                    borderRadius: "8px",
-                    border: "none",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    cursor: "pointer",
-                    boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
-                    userSelect: "none",
-                }}
-            >
+            <button onClick={resetView} style={{
+                position: "absolute",
+                bottom: 20,
+                right: 20,
+                zIndex: 20,
+                padding: "10px 15px",
+                fontSize: "14px",
+                borderRadius: "8px",
+                border: "none",
+                backgroundColor: "#28a745",
+                color: "white",
+                cursor: "pointer",
+                boxShadow: "0 3px 7px rgba(0,0,0,0.3)",
+                userSelect: "none"
+            }}>
                 🔄 Reset View
             </button>
-
-            {/* Styles */}
-            <style>{`
-        .spinner {
-          border: 6px solid #eee;
-          border-top: 6px solid #1976d2;
-          border-radius: 50%;
-          width: 48px;
-          height: 48px;
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg);}
-          100% { transform: rotate(360deg);}
-        }
-
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-      `}</style>
         </div>
     );
 }

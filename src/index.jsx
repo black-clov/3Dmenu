@@ -7,6 +7,7 @@ import App from "./App";
 import Floor1 from "./Floor1";
 import Floor2 from "./Floor2";
 import Floor from "./Floor";
+import Floor3 from "./Floor3"
 import Destination from "./Destination";
 import "./styles.css";
 
@@ -19,6 +20,7 @@ root.render(
             <Route path="/floor1" element={<Floor1 />} />
             <Route path="/floor2" element={<Floor2 />} />
             <Route path="/floor" element={<Floor />} />
+            <Route path="/floor3" element={<Floor3 />} />
             <Route path="/floor0" element={<App />} />
             <Route path="/destination" element={<Destination />} />
         </Routes>
