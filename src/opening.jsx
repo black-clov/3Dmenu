@@ -13,7 +13,7 @@ export default function Opening() {
         <div className="opening-container">
             <img src="/navindoora_logo.png" alt="App Logo" className="logo-img" />
             <button className="start-btn" onClick={handleStart}>
-                Start Navigation
+                Commencer la Navigation
             </button>
         </div>
     );

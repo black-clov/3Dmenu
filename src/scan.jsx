@@ -40,7 +40,7 @@ export default function Scan() {
 
     return (
         <div style={{ padding: "2rem", textAlign: "center" }}>
-            <h2>Scan QR Code to find your position</h2>
+            <h2>Scannez QR Code de votre position</h2>
             <div id="reader" style={{ width: "300px", margin: "auto" }}></div>
         </div>
     );

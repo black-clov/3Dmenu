@@ -31,9 +31,9 @@ const Destination = () => {
     "Unkown1", "Unkown2", "Unkown3", "Unkown4", "Unkown5", "Unkown6", "Unkown7", "Unkown8", "Unkown9", "Unkown10", "Unkown12", "Unkown13", "Unkown14",
     "Unkown15", "Unkown16", "Unkown17", "Unkown18", "Unkown19", "Unkown21", "Unkown22", "Unkown24", "Unkown25", "Unkown26", "Unkown27", "Unkown28",
     "Unkown29", "Unkown30", "Unkown31",""]);
-  const hiddenNodes_floor3 = new Set(["int1", "int2", "int3", "int4", "int5", "int6", "int7", "int8", "int9", "int10",
-    "int11", "int12", "int13", "int14", "int15", "int16", "int17", "int18", "int19", "int20",
-    "int21", "int22", "int23", "int24", "int25", "int26", "in27", "int28", "unkown1_RezDeJardin", "unkown2_RezDeJardin",""]);
+  const hiddenNodes_floor3 = new Set(["in1", "in2", "in3", "in4", "in5", "in6", "in7", "in8", "in9", "in10",
+    "in11", "in12", "in13", "in14", "in15", "in16", "in17", "in18", "in19", "in20",
+    "in21", "in22", "in23", "in24", "in25", "in26", "in27", "in28", "unkown1_RezDeJardin", "unkown2_RezDeJardin",""]);
 
   // Maps for case-insensitive key lookup
   const floor0LowerMap = {};

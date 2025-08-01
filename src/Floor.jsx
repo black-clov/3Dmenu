@@ -116,6 +116,8 @@ function SetupCamera({ controlsRef }) {
     return null;
 }
 
+
+
 export default function Floor3() {
     const [nodesState] = useState(getInitialNodes);
     const [startNode, setStartNode] = useState("Escalier1 1er & 2éme étage");
