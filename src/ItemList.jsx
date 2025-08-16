@@ -40,20 +40,20 @@ export default function ItemList() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50">
-        <div>
-            <p></p>
-        </div>
+            <div>
+                <p></p>
+            </div>
             {/* Back Button */}
             <div className="px-4 mt-4">
                 <button
                     onClick={handleBackToBusiness}
                     className="w-full bg-green-500 text-white py-3 rounded-md shadow-md hover:bg-green-600 font-semibold transition duration-300"
-                style={{
-                    minHeight: "45px",
-                    marginBottom: "28px",
-                    width: "211px",
-                    backgroundColor:"rgba(248, 121, 104, 1)"
-                }}
+                    style={{
+                        minHeight: "45px",
+                        marginBottom: "28px",
+                        width: "211px",
+                        backgroundColor: "rgba(248, 121, 104, 1)"
+                    }}
                 >
                     ← Retour aux Restaurants
                 </button>
@@ -112,7 +112,7 @@ export default function ItemList() {
                                     src={i.image}
                                     alt={i.name}
                                     className="object-cover rounded-md border border-gray-200"
-                                    style={{ width: "410px", height: "150px" }}
+                                    style={{ width: "400px", height: "150px" }}
                                 />
                             ) : (
                                 <div className="w-16 h-16 rounded-md bg-gray-200 flex items-center justify-center text-gray-500 text-xs">

@@ -23,9 +23,9 @@ export default function BusinessList() {
             key={categoryId} // Force remount if category changes
             className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50"
         >
-        <div>
-            <p></p>
-        </div>
+            <div>
+                <p></p>
+            </div>
             {/* Back Button */}
             <div className="px-4 mt-6 mb-4">
                 <button
@@ -34,7 +34,7 @@ export default function BusinessList() {
                     style={{
                         minHeight: "45px",
                         marginBottom: "28px",
-                        width:"211px",
+                        width: "211px",
                         backgroundColor: "rgba(248, 121, 104, 1)"
                     }}
                 >
@@ -48,7 +48,7 @@ export default function BusinessList() {
                 <h1 className="text-2xl font-bold text-gray-900">Choisir <div><p></p></div>Un Restaurant</h1>
             </header>
 
-            
+
             {/* Business List */}
             <div className="flex flex-col w-full mt-4 space-y-4 px-4">
                 {filteredBusinesses.map((b) => (
@@ -65,7 +65,7 @@ export default function BusinessList() {
                                     src={b.image}
                                     alt={b.name}
                                     className="object-cover rounded-md border border-gray-200"
-                                    style={{ width: "410px", height: "150px" }}
+                                    style={{ width: "390px", height: "150px" }}
                                 />
                             ) : (
                                 <div className="w-16 h-16 rounded-md bg-gray-200 flex items-center justify-center text-gray-500 text-xs">

@@ -154,7 +154,6 @@ export default function Viewer3D() {
 
     return (
         <div className="flex flex-col items-center p-4">
-        <div><p></p></div>
             <div className="px-4 mt-6 mb-4">
                 <button
                     onClick={() => { navigate(`/category/${categoryId}/business/${businessId}`); window.location.reload(); }}
@@ -167,7 +166,7 @@ export default function Viewer3D() {
                     }}
                 >
                     <span className="text-2xl">←</span>
-                    <span>Back to Items</span>
+                    <span>Retour aux Plats</span>
                 </button>
             </div>
 
