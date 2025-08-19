@@ -12,7 +12,10 @@ function getClientId() {
     let clientId = localStorage.getItem("clientId");
     if (!clientId) {
         clientId = "client-" + Math.random().toString(36).substr(2, 9);
+        console.log("Saving new clientId:", clientId);
         localStorage.setItem("clientId", clientId);
+    } else {
+        console.log("Loaded clientId from localStorage:", clientId);
     }
     return clientId;
 }
