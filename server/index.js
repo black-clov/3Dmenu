@@ -1,20 +1,8 @@
 // index.js
-import admin from "firebase-admin";
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-
-// --- Firebase Admin SDK initialization (using environment variables)
-admin.initializeApp({
-    credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-    }),
-    databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`,
-});
-
-const db = admin.database();
+import db from "./firebase.js";  // ✅ use the firebase.js file
 
 const app = express();
 const server = http.createServer(app);
