@@ -17,9 +17,9 @@ function getClientId() {
 export default function CategoryList() {
   const { categories, trackEvent, socket } = useContext(DataContext);
   const navigate = useNavigate();
-  const [clientId] = useState(getClientId);
+  const [clientId] = useState(getClientId); // load once
 
-  // --- Identify user once socket connects ---
+  // --- Identify user once socket connects
   useEffect(() => {
     if (socket && clientId) {
       socket.emit("identifyUser", clientId);
