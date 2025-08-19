@@ -2,7 +2,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { io } from "socket.io-client";
 
-export const SOCKET_URL = "https://black-clov.github.io"; // replace with your backend URL
+export const SOCKET_URL = "https://threedmenu-server.onrender.com/"; // replace with your backend URL
 export const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });
 
 export const DataContext = createContext();
