@@ -6,6 +6,23 @@ import dotenv from "dotenv";
 
 dotenv.config(); // Load environment variables from .env
 
+// --- Validate required environment variables
+const requiredEnv = [
+    "FIREBASE_PROJECT_ID",
+    "FIREBASE_PRIVATE_KEY_ID",
+    "FIREBASE_PRIVATE_KEY",
+    "FIREBASE_CLIENT_EMAIL",
+    "FIREBASE_CLIENT_ID",
+    "FIREBASE_DATABASE_URL"
+];
+
+requiredEnv.forEach((key) => {
+    if (!process.env[key]) {
+        console.error(`Missing required env variable: ${key}`);
+        process.exit(1);
+    }
+});
+
 // --- Firebase Admin SDK initialization
 const serviceAccount = {
     type: "service_account",
