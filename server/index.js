@@ -2,8 +2,24 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import db from "./firebase.js";  // ✅ use the firebase.js file
+import admin from "firebase-admin";
+import dotenv from "dotenv";
 
+dotenv.config(); // Load .env variables
+
+// --- Firebase Admin SDK initialization using env variables
+admin.initializeApp({
+    credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    }),
+    databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`,
+});
+
+const db = admin.database(); // Realtime Database
+
+// --- Express + Socket.IO setup
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -40,6 +56,7 @@ io.on("connection", (socket) => {
             timeString: new Date().toISOString(),
         };
 
+        // Push event to Firebase
         db.ref("events")
             .push(eventWithTime)
             .then(() => console.log("Event pushed to Firebase with timestamp"))
@@ -72,6 +89,7 @@ io.on("connection", (socket) => {
             .then(() => console.log("Analytics updated in Firebase"))
             .catch(console.error);
 
+        // Send updated analytics to all clients
         io.emit("analyticsUpdate", analytics);
     });
 
@@ -80,6 +98,8 @@ io.on("connection", (socket) => {
     });
 });
 
-server.listen(5000, () => {
-    console.log("Backend running on port 5000");
+// --- Start server
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+    console.log(`Backend running on port ${PORT}`);
 });
