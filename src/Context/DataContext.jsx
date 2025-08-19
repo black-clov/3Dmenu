@@ -1,4 +1,4 @@
-
+// src/Context/DataContext.jsx
 import { createContext, useState, useContext, useEffect } from "react";
 import { io } from "socket.io-client";
 
@@ -7,21 +7,7 @@ export const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });
 
 export const DataContext = createContext();
 
-// --- Generate or load persistent clientId
-function getClientId() {
-    let clientId = localStorage.getItem("clientId");
-    if (!clientId) {
-        clientId = "client-" + Math.random().toString(36).substr(2, 9);
-        console.log("Saving new clientId:", clientId);
-        localStorage.setItem("clientId", clientId);
-    } else {
-        console.log("Loaded clientId from localStorage:", clientId);
-    }
-    return clientId;
-}
-
 export const DataProvider = ({ children }) => {
-    const [clientId] = useState(getClientId);
 
 
     const categories = [
@@ -149,6 +135,7 @@ export const DataProvider = ({ children }) => {
 
     ];
 
+    // --- Analytics state
     const [analytics, setAnalytics] = useState({
         totalVisitors: 0,
         totalOrders: 0,
@@ -156,39 +143,38 @@ export const DataProvider = ({ children }) => {
         shares: {},
     });
 
-    // --- Emit identifyUser once socket connects
+    // --- Socket.IO connection (single instance)
     useEffect(() => {
-        if (socket && clientId) {
-            socket.emit("identifyUser", clientId);
-            console.log("Sent identifyUser to backend:", clientId);
-        }
-    }, [clientId]);
-
-    // --- Listen for real-time analytics updates
-    useEffect(() => {
+        // Listen for real-time analytics updates from backend
         socket.on("updateDashboard", (data) => {
             setAnalytics(data);
         });
 
-        return () => socket.off("updateDashboard");
+        return () => {
+            socket.off("updateDashboard");
+        };
     }, []);
 
-    // --- Track Events (always include clientId)
+    // --- Track Events
     const trackEvent = (eventName, payload) => {
-        socket.emit("trackEvent", { eventName, clientId, ...payload });
-        console.log("Tracked event sent:", { eventName, clientId, ...payload });
+        console.log("Tracked event:", eventName, payload);
+        socket.emit("trackEvent", { eventName, ...payload });
     };
 
     return (
-        <DataContext.Provider value={{ categories, analytics, trackEvent, clientId, socket }}>
+        <DataContext.Provider
+            value={{
+                categories,
+                businesses,
+                items,
+                analytics,
+                trackEvent,
+            }}
+        >
             {children}
         </DataContext.Provider>
     );
 };
 
+// --- Custom hook
 export const useData = () => useContext(DataContext);
-
-
-
-
-

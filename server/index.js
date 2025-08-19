@@ -50,10 +50,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "https://black-clov.github.io",
+        origin: [
+            "https://black-clov.github.io", // your deployed frontend
+            "http://localhost:5173",       // for local dev
+        ],
         methods: ["GET", "POST"],
+        credentials: true,
     },
 });
+
 
 // --- Analytics state
 let analytics = {
