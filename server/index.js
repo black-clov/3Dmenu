@@ -74,11 +74,6 @@ io.on("connection", (socket) => {
         .catch(console.error);
 
     socket.on("trackEvent", (data) => {
-        if (!data.userId) {
-            console.warn("Event received without userId, ignoring:", data);
-            return; // Don’t save anonymous events
-        }
-
         console.log("Tracked event:", data);
 
         const eventWithTime = {
@@ -116,7 +111,6 @@ io.on("connection", (socket) => {
 
         io.emit("analyticsUpdate", analytics);
     });
-
 
     socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
