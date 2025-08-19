@@ -1,17 +1,36 @@
+// components/BusinessList.jsx
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useData } from "./Context/DataContext.jsx"; // updated to useData
 import foodGif from "./food.gif"; // make sure this path is correct
 
+// --- Generate or load persistent clientId ---
+function getClientId() {
+    let clientId = localStorage.getItem("clientId");
+    if (!clientId) {
+        clientId = "client-" + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem("clientId", clientId);
+    }
+    return clientId;
+}
+
 export default function BusinessList() {
     const { categoryId } = useParams();
-    const { businesses, trackEvent } = useData();
+    const { businesses, trackEvent, socket } = useData();
     const navigate = useNavigate();
 
     const [filteredBusinesses, setFilteredBusinesses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [search, setSearch] = useState("");
     const [cityFilter, setCityFilter] = useState("");
+    const [clientId] = useState(getClientId);
+
+    // --- Identify user once socket connects ---
+    useEffect(() => {
+        if (socket && clientId) {
+            socket.emit("identifyUser", clientId);
+        }
+    }, [socket, clientId]);
 
     // Debounce search input
     useEffect(() => {
@@ -42,8 +61,12 @@ export default function BusinessList() {
         return <div className="loading-state">Chargement...</div>;
 
     const handleBusinessClick = (business) => {
-        // Track analytics event
-        trackEvent("Business Click", { businessId: business.id, name: business.name });
+        // Track analytics event with clientId
+        trackEvent("Business Click", {
+            businessId: business.id,
+            name: business.name,
+            clientId,
+        });
 
         // Navigate to item list for that business
         navigate(`/category/${categoryId}/business/${business.id}`);
@@ -114,11 +137,17 @@ export default function BusinessList() {
                                         No Image
                                     </div>
                                 )}
-                                <img src={foodGif} alt="food" className="food-gif absolute bottom-2 right-2 w-12 h-12 pointer-events-none" />
+                                <img
+                                    src={foodGif}
+                                    alt="food"
+                                    className="food-gif absolute bottom-2 right-2 w-12 h-12 pointer-events-none"
+                                />
                             </div>
 
                             <div className="business-info p-4">
-                                <h2 className="business-name text-xl font-semibold mb-1">{b.name}</h2>
+                                <h2 className="business-name text-xl font-semibold mb-1">
+                                    {b.name}
+                                </h2>
                                 <p className="business-meta text-gray-500">
                                     {b.city} • → Voir les détails
                                 </p>

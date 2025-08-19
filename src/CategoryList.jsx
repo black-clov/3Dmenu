@@ -1,23 +1,39 @@
 // components/CategoryList.jsx
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataContext } from "./Context/DataContext.jsx";
 import logo from "./logo2.png"; // make sure logo2.png is in the same folder
 
+// --- Generate or load persistent clientId ---
+function getClientId() {
+  let clientId = localStorage.getItem("clientId");
+  if (!clientId) {
+    clientId = "client-" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("clientId", clientId);
+  }
+  return clientId;
+}
+
 export default function CategoryList() {
-  const { categories, trackEvent } = useContext(DataContext); // get trackEvent
+  const { categories, trackEvent, socket } = useContext(DataContext);
   const navigate = useNavigate();
+  const [clientId] = useState(getClientId);
+
+  // --- Identify user once socket connects ---
+  useEffect(() => {
+    if (socket && clientId) {
+      socket.emit("identifyUser", clientId);
+    }
+  }, [socket, clientId]);
 
   const handleCategoryClick = (category) => {
-    // Track the click event for analytics
     if (trackEvent) {
       trackEvent("Category Click", {
         categoryId: category.id,
         name: category.name,
+        clientId, // attach clientId to every event
       });
     }
-
-    // Navigate to business list for the selected category
     navigate(`/category/${category.id}`);
   };
 
