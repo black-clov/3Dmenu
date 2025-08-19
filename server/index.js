@@ -73,7 +73,14 @@ io.on("connection", (socket) => {
         .then(() => console.log("Total visitors updated"))
         .catch(console.error);
 
+    // --- Receive and store tracked events
     socket.on("trackEvent", (data) => {
+        // Ensure clientId exists
+        if (!data.clientId) {
+            console.warn("trackEvent missing clientId, assigning 'unknown'");
+            data.clientId = "unknown";
+        }
+
         console.log("Tracked event:", data);
 
         const eventWithTime = {
@@ -87,6 +94,7 @@ io.on("connection", (socket) => {
             .then(() => console.log("Event pushed to Firebase with timestamp"))
             .catch(console.error);
 
+        // --- Update analytics counters
         switch (data.eventName) {
             case "Category Click":
                 analytics.pageClicks[data.categoryId] = (analytics.pageClicks[data.categoryId] || 0) + 1;
@@ -110,6 +118,12 @@ io.on("connection", (socket) => {
             .catch(console.error);
 
         io.emit("analyticsUpdate", analytics);
+    });
+
+    // --- Optional: store user socket association
+    socket.on("identifyUser", (clientId) => {
+        console.log(`Socket ${socket.id} identified as clientId: ${clientId}`);
+        socket.clientId = clientId; // store in socket object if needed later
     });
 
     socket.on("disconnect", () => {
