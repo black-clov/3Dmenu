@@ -4,12 +4,14 @@ import CategoryList from "./CategoryList.jsx";
 import { DataProvider } from "./Context/DataContext.jsx";
 import ItemList from "./ItemList.jsx";
 import Viewer3D from "./components/Viewer3D.jsx";
+import Dashboard from "./components/Dashboard"; // ✅ Import Dashboard
 
 function AppWrapper() {
   const location = useLocation();
 
   return (
     <Routes location={location} key={location.pathname + location.search}>
+      {/* Default pages */}
       <Route path="/" element={<CategoryList />} />
       <Route
         path="/category/:categoryId"
@@ -23,6 +25,9 @@ function AppWrapper() {
         path="/category/:categoryId/business/:businessId/item/:itemId"
         element={<Viewer3D key={location.pathname} />}
       />
+
+      {/* ✅ New Admin Dashboard Route */}
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 }

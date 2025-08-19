@@ -1,22 +1,25 @@
-import React, { createContext } from "react";
+// src/Context/DataContext.jsx
+import { createContext, useState, useContext, useEffect } from "react";
+import { io } from "socket.io-client";
 
-// Exemple de données statiques
+export const SOCKET_URL = "https://black-clov.github.io"; // replace with your backend URL
+export const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });
+
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
     const categories = [
-        { id: "coffee", name: "Coffee & Restaurants", image: "/3Dmenu/images/categories/cat_restaurant_coffee.jpg" },
-        { id: "tourism", name: "Tourism & Handicrafts", image: "/3Dmenu/images/categories/cat_Tourism_Handicrafts.jpg" },
-        { id: "furniture", name: "Furniture & Home Decoration", image: "/3Dmenu/images/categories/cat_Furniture_Home%20Decoration.jpg" },
-        { id: "automotive", name: "Automotive & Scooters", image: "/3Dmenu/images/categories/cat_Automotive_Scooters.jpg" },
+        { id: "coffee", name: "Coffee & Restaurants", image: "images/categories/cat_restaurant_coffee.jpg" },
+        { id: "tourism", name: "Tourism & Handicrafts", image: "images/categories/cat_Tourism_Handicrafts.jpg" },
+        { id: "furniture", name: "Furniture & Home Decoration", image: "images/categories/cat_Furniture_Home%20Decoration.jpg" },
+        { id: "automotive", name: "Automotive & Scooters", image: "images/categories/cat_Automotive_Scooters.jpg" },
     ];
 
     const businesses = [
-        { id: "coffee_shop_1", name: "Moods Café & Restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
-        { id: "coffee_shop_2", name: "Sushi Hiro Maroc", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
-        { id: "coffee_shop_3", name: "Açai & You - Brunch & Coffee", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
-        { id: "coffee_shop_4", name: "Maison Montei", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
-        { id: "coffee_shop_5", name: "House 17", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
+        { id: "Moods", name: "Moods Café & Restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" , city:"Casablanca" },
+        { id: "coffee_shop_2", name: "Sushi Hiro Maroc", category: "coffee", image: "/3Dmenu/images/businesses/Sushi Hiro Maroc.png" , city:"Rabat"},
+        { id: "coffee_shop_3", name: "Açai & You - Brunch & Coffee", category: "coffee", image: "/3Dmenu/images/businesses/Açaï & You - Brunch & Coffee.jpeg", city:"Tangier" },
+        { id: "coffee_shop_5", name: "House 17", category: "coffee", image: "/3Dmenu/images/businesses/house 17.jpeg" },
         { id: "coffee_shop_6", name: "KOI cafe & restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
         { id: "coffee_shop_7", name: "Winos Cafe & Restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
         { id: "coffee_shop_8", name: "Green Black - Marina", category: "coffee", image: "/3Dmenu/images/businesses/" },
@@ -43,16 +46,16 @@ export const DataProvider = ({ children }) => {
     ];
 
     const items = [
-        { id: "dish_1", name: "Mezzé Marocain à partager", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/1_Mezzé Marocain à partager_shaded.glb", image: "/3Dmenu/images/items/moods/Mezzé Marocain à partager.png", type: "Lunch & Dinner", price: "60 DH", description: "Potatos" },
-        { id: "dish_2", name: "Pizza végétarienne", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/2_Pizza végétarienne_shaded.glb", image: "/3Dmenu/images/items/moods/Pizza végétarienne.png" },
-        { id: "dish_3", name: "Mixed grill", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/3_Mixed grill_shaded.glb", image: "/3Dmenu/images/items/moods/Mixed grill.png" },
-        { id: "dish_4", name: "Loup entier grillé", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/4_Loup entier grillé_shaded.glb", image: "/3Dmenu/images/items/moods/Loup entier grillé.png" },
-        { id: "dish_5", name: "Tea Time (plateau de 2 personnes )", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/5_Tea Time (plateau de 2 personnes )_shaded.glb", image: "/3Dmenu/images/items/moods/Tea Time (plateau de 2 personnes ).png" },
-        { id: "dish_6", name: "🇱🇧 Hot Mezzé Libanais", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/6_Hot Mezzé Libanais_shaded.glb", image: "/3Dmenu/images/items/moods/Hot Mezzé Libanais.png" },
-        { id: "dish_7", name: "Beignet de calamars", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/7_Beignet de calamars_shaded.glb", image: "/3Dmenu/images/items/moods/Beignet de calamars.png" },
-        { id: "dish_8", name: "Paella aux fruits de mer", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/8_Paella aux fruits de mer_shaded.glb", image: "/3Dmenu/images/items/moods/Paella aux fruits de mer.png" },
-        { id: "dish_9", name: "Tagine 1", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/9_tagine_shaded.glb", image: "/3Dmenu/images/items/moods/tajine1.png" },
-        { id: "dish_10", name: "Tajine 2", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/tajine2.png" },
+        { id: "dish_1", name: "Mezzé Marocain à partager", category: "coffee", business: "Moods", glb: "/3Dmenu/models/1_Mezzé Marocain à partager_shaded.glb", image: "/3Dmenu/images/items/moods/Mezzé Marocain à partager.png", type: "Lunch & Dinner", price: "60 DH", description: "Potatos" },
+        { id: "dish_2", name: "Pizza végétarienne", category: "coffee", business: "Moods", glb: "/3Dmenu/models/2_Pizza végétarienne_shaded.glb", image: "/3Dmenu/images/items/moods/Pizza végétarienne.png" },
+        { id: "dish_3", name: "Mixed grill", category: "coffee", business: "Moods", glb: "/3Dmenu/models/3_Mixed grill_shaded.glb", image: "/3Dmenu/images/items/moods/Mixed grill.png" },
+        { id: "dish_4", name: "Loup entier grillé", category: "coffee", business: "Moods", glb: "/3Dmenu/models/4_Loup entier grillé_shaded.glb", image: "/3Dmenu/images/items/moods/Loup entier grillé.png" },
+        { id: "dish_6", name: "🇱🇧 Hot Mezzé Libanais", category: "coffee", business: "Moods", glb: "/3Dmenu/models/6_Hot Mezzé Libanais_shaded.glb", image: "/3Dmenu/images/items/moods/Hot Mezzé Libanais.png" },
+        { id: "dish_5", name: "Tea Time (plateau de 2 personnes )", category: "coffee", business: "Moods", glb: "/3Dmenu/models/5_Tea Time (plateau de 2 personnes )_shaded.glb", image: "/3Dmenu/images/items/moods/Tea Time (plateau de 2 personnes ).png" },
+        { id: "dish_7", name: "Beignet de calamars", category: "coffee", business: "Moods", glb: "/3Dmenu/models/7_Beignet de calamars_shaded.glb", image: "/3Dmenu/images/items/moods/Beignet de calamars.png" },
+        { id: "dish_8", name: "Paella aux fruits de mer", category: "coffee", business: "Moods", glb: "/3Dmenu/models/8_Paella aux fruits de mer_shaded.glb", image: "/3Dmenu/images/items/moods/Paella aux fruits de mer.png" },
+        { id: "dish_9", name: "Tagine 1", category: "coffee", business: "Moods", glb: "/3Dmenu/models/9_tagine_shaded.glb", image: "/3Dmenu/images/items/moods/tajine1.png" },
+        { id: "dish_10", name: "Tajine 2", category: "coffee", business: "Moods", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/tajine2.png" },
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //Petit Déjeune
@@ -125,19 +128,51 @@ export const DataProvider = ({ children }) => {
         { id: "dish_67", name: "🇱🇧 Warak Enab", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/7.png", type: "Nouveaux" },
         { id: "dish_68", name: "🇱🇧 Fatayer aux épinards", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/8.png", type: "Nouveaux" },
         { id: "dish_69", name: "🇱🇧 Hot Mezzé Libanais", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/9.png", type: "Nouveaux" },
-        { id: "dish_70", name: "🇱🇧 Lebanese Kibbeh", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/10.png", type: "Nouveaux" },
+        { id: "dish_70", name: "🇱🇧 Lebanese Kibbeh", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/10.png", type: "Nouveaux" }
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
 
     ];
 
+    // --- Analytics state
+    const [analytics, setAnalytics] = useState({
+        totalVisitors: 0,
+        totalOrders: 0,
+        pageClicks: {},
+        shares: {},
+    });
+
+    // --- Socket.IO connection (single instance)
+    useEffect(() => {
+        // Listen for real-time analytics updates from backend
+        socket.on("updateDashboard", (data) => {
+            setAnalytics(data);
+        });
+
+        return () => {
+            socket.off("updateDashboard");
+        };
+    }, []);
+
+    // --- Track Events
+    const trackEvent = (eventName, payload) => {
+        console.log("Tracked event:", eventName, payload);
+        socket.emit("trackEvent", { eventName, ...payload });
+    };
+
     return (
-        <DataContext.Provider value={{ categories, businesses, items }}>
+        <DataContext.Provider
+            value={{
+                categories,
+                businesses,
+                items,
+                analytics,
+                trackEvent,
+            }}
+        >
             {children}
         </DataContext.Provider>
     );
 };
+
+// --- Custom hook
+export const useData = () => useContext(DataContext);

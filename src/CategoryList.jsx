@@ -1,50 +1,62 @@
+// components/CategoryList.jsx
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataContext } from "./Context/DataContext.jsx";
+import logo from "./logo2.png"; // make sure logo2.png is in the same folder
 
 export default function CategoryList() {
-  const { categories } = useContext(DataContext);
+  const { categories, trackEvent } = useContext(DataContext); // get trackEvent
   const navigate = useNavigate();
+
+  const handleCategoryClick = (category) => {
+    // Track the click event for analytics
+    if (trackEvent) {
+      trackEvent("Category Click", {
+        categoryId: category.id,
+        name: category.name,
+      });
+    }
+
+    // Navigate to business list for the selected category
+    navigate(`/category/${category.id}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-red-50 to-white">
-      <header className="w-full text-center py-6 bg-white shadow-md border-b border-gray-200">
-        <h1 className="text-3xl font-extrabold text-red-600 tracking-wide drop-shadow-sm">
-          Choisir une Categorie
-        </h1>
+      {/* HEADER */}
+      <header className="sticky top-0 z-10 w-full bg-gradient-to-r from-red-600 to-red-500 shadow-lg">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+          {/* LOGO */}
+          <div className="flex items-center gap-4">
+            <img src={logo} alt="Logo" className="h-12 md:h-16 object-contain" />
+          </div>
+        </div>
+        <div className="hidden md:flex justify-center items-center">
+          <p className="text-white font-extrabold text-4xl md:text-5xl lg:text-6xl typing-animation">
+            3D Presentation
+          </p>
+        </div>
       </header>
 
-      <div className="flex flex-col w-full mt-4 px-4 space-y-4">
-        {categories.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => navigate(`/category/${c.id}`)}
-            className="flex items-center justify-between w-full rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 border border-gray-100 overflow-hidden"
-            style={{ minHeight: "90px", backgroundColor: c.color || "white" }}
-          >
-            <div className="flex items-center pl-3 py-3">
-              {c.image ? (
-                <img
-                  src={c.image} // <-- use the path directly
-                  alt={c.name}
-                  className="rounded-lg shadow-md object-cover"
-                  style={{ width: "410px", height: "150px" }}
-                />
-              ) : (
-                <div className="w-20 h-14 rounded-lg bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
-                  No Image
-                </div>
-              )}
-
-              <span className="ml-5 text-xl font-semibold text-gray-800">
-                {c.name}
-              </span>
+      {/* CATEGORY GRID */}
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((c, i) => (
+            <div
+              key={c.id}
+              onClick={() => handleCategoryClick(c)}
+              className={`cursor-pointer category-card fade-in-up gradient-${i % 6}`}
+            >
+              <img src={c.image} alt={c.name} className="w-full h-48 object-cover rounded-lg" />
+              <div className="flex-1 flex flex-col justify-center ml-4 mt-2">
+                <h2 className="category-name font-bold text-lg">{c.name}</h2>
+                <p className="text-gray-500 text-sm mt-1">Explore {c.name}</p>
+              </div>
+              <div className="card-arrow text-2xl font-bold text-gray-400">›</div>
             </div>
-
-            <div className="pr-5 text-gray-600 text-2xl font-light">›</div>
-          </button>
-        ))}
-      </div>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }

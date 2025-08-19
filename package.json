@@ -21,12 +21,18 @@
     "@react-three/fiber": "8.17.10",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
+    "framer-motion": "^12.23.12",
+    "gsap": "^3.13.0",
     "html5-qrcode": "^2.3.8",
+    "lucide-react": "^0.539.0",
     "react": "18.3.1",
     "react-confetti": "^6.4.0",
     "react-dom": "18.3.1",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.8.0",
     "react-simple-typewriter": "^5.0.1",
+    "recharts": "^3.1.2",
+    "socket.io-client": "^4.8.1",
     "three": "0.170.0"
   },
   "devDependencies": {
