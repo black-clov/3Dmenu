@@ -20,6 +20,7 @@
     "@react-three/drei": "9.115.0",
     "@react-three/fiber": "8.17.10",
     "body-parser": "^2.2.0",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "framer-motion": "^12.23.12",
     "gsap": "^3.13.0",
