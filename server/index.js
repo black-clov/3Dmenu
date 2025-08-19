@@ -63,6 +63,9 @@ let analytics = {
     salesTrend: [],
 };
 
+// --- Map socket IDs to client IDs
+const socketClientMap = new Map();
+
 // --- Socket.io connections
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
@@ -73,22 +76,28 @@ io.on("connection", (socket) => {
         .then(() => console.log("Total visitors updated"))
         .catch(console.error);
 
+    // --- Identify user
+    socket.on("identifyUser", (clientId) => {
+        console.log(`Socket ${socket.id} identified as clientId: ${clientId}`);
+        socket.clientId = clientId;
+        socketClientMap.set(socket.id, clientId);
+    });
+
     // --- Receive and store tracked events
     socket.on("trackEvent", (data) => {
-        // Ensure clientId exists
-        if (!data.clientId) {
-            console.warn("trackEvent missing clientId, assigning 'unknown'");
-            data.clientId = "unknown";
-        }
-
-        console.log("Tracked event:", data);
+        // Get clientId from socket or data
+        const clientId = data.clientId || socketClientMap.get(socket.id) || "unknown";
 
         const eventWithTime = {
             ...data,
+            clientId, // always include clientId
             timestamp: Date.now(),
             timeString: new Date().toISOString(),
         };
 
+        console.log("Tracked event:", eventWithTime);
+
+        // Push event to Firebase
         db.ref("events")
             .push(eventWithTime)
             .then(() => console.log("Event pushed to Firebase with timestamp"))
@@ -120,14 +129,9 @@ io.on("connection", (socket) => {
         io.emit("analyticsUpdate", analytics);
     });
 
-    // --- Optional: store user socket association
-    socket.on("identifyUser", (clientId) => {
-        console.log(`Socket ${socket.id} identified as clientId: ${clientId}`);
-        socket.clientId = clientId; // store in socket object if needed later
-    });
-
     socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
+        socketClientMap.delete(socket.id); // clean up
     });
 });
 

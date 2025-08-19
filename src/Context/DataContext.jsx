@@ -1,6 +1,7 @@
 // src/Context/DataContext.jsx
 import { createContext, useState, useContext, useEffect } from "react";
 import { io } from "socket.io-client";
+getClientId();
 
 // --- Replace with your backend URL
 export const SOCKET_URL = "https://threedmenu-server.onrender.com/";
@@ -20,7 +21,7 @@ function getClientId() {
 
 export const DataProvider = ({ children }) => {
     const [clientId] = useState(getClientId);
-    
+
     const categories = [
         { id: "coffee", name: "Coffee & Restaurants", image: "images/categories/cat_restaurant_coffee.jpg" },
         { id: "tourism", name: "Tourism & Handicrafts", image: "images/categories/cat_Tourism_Handicrafts.jpg" },
