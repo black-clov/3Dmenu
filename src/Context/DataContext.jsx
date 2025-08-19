@@ -2,12 +2,25 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { io } from "socket.io-client";
 
-export const SOCKET_URL = "https://threedmenu-server.onrender.com/"; // replace with your backend URL
+// --- Replace with your backend URL
+export const SOCKET_URL = "https://threedmenu-server.onrender.com/";
 export const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });
 
 export const DataContext = createContext();
 
+// --- Generate or load persistent clientId
+function getClientId() {
+    let clientId = localStorage.getItem("clientId");
+    if (!clientId) {
+        clientId = "client-" + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem("clientId", clientId);
+    }
+    return clientId;
+}
+
 export const DataProvider = ({ children }) => {
+    const [clientId] = useState(getClientId);
+    
     const categories = [
         { id: "coffee", name: "Coffee & Restaurants", image: "images/categories/cat_restaurant_coffee.jpg" },
         { id: "tourism", name: "Tourism & Handicrafts", image: "images/categories/cat_Tourism_Handicrafts.jpg" },
@@ -153,10 +166,10 @@ export const DataProvider = ({ children }) => {
         };
     }, []);
 
-    // --- Track Events
+    // --- Track Events (always include clientId)
     const trackEvent = (eventName, payload) => {
-        console.log("Tracked event:", eventName, payload);
-        socket.emit("trackEvent", { eventName, ...payload });
+        console.log("Tracked event:", eventName, { clientId, ...payload });
+        socket.emit("trackEvent", { eventName, clientId, ...payload });
     };
 
     return (
@@ -164,9 +177,10 @@ export const DataProvider = ({ children }) => {
             value={{
                 categories,
                 businesses,
-                items,
                 analytics,
                 trackEvent,
+                clientId,
+                socket,
             }}
         >
             {children}
@@ -176,3 +190,6 @@ export const DataProvider = ({ children }) => {
 
 // --- Custom hook
 export const useData = () => useContext(DataContext);
+
+
+
