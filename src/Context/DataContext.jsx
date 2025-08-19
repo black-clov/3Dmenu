@@ -1,9 +1,7 @@
-// src/Context/DataContext.jsx
+
 import { createContext, useState, useContext, useEffect } from "react";
 import { io } from "socket.io-client";
-getClientId();
 
-// --- Replace with your backend URL
 export const SOCKET_URL = "https://threedmenu-server.onrender.com/";
 export const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });
 
@@ -21,6 +19,7 @@ function getClientId() {
 
 export const DataProvider = ({ children }) => {
     const [clientId] = useState(getClientId);
+
 
     const categories = [
         { id: "coffee", name: "Coffee & Restaurants", image: "images/categories/cat_restaurant_coffee.jpg" },
@@ -147,7 +146,6 @@ export const DataProvider = ({ children }) => {
 
     ];
 
-    // --- Analytics state
     const [analytics, setAnalytics] = useState({
         totalVisitors: 0,
         totalOrders: 0,
@@ -155,42 +153,39 @@ export const DataProvider = ({ children }) => {
         shares: {},
     });
 
-    // --- Socket.IO connection (single instance)
+    // --- Emit identifyUser once socket connects
     useEffect(() => {
-        // Listen for real-time analytics updates from backend
+        if (socket && clientId) {
+            socket.emit("identifyUser", clientId);
+            console.log("Sent identifyUser to backend:", clientId);
+        }
+    }, [clientId]);
+
+    // --- Listen for real-time analytics updates
+    useEffect(() => {
         socket.on("updateDashboard", (data) => {
             setAnalytics(data);
         });
 
-        return () => {
-            socket.off("updateDashboard");
-        };
+        return () => socket.off("updateDashboard");
     }, []);
 
     // --- Track Events (always include clientId)
     const trackEvent = (eventName, payload) => {
-        console.log("Tracked event:", eventName, { clientId, ...payload });
         socket.emit("trackEvent", { eventName, clientId, ...payload });
+        console.log("Tracked event sent:", { eventName, clientId, ...payload });
     };
 
     return (
-        <DataContext.Provider
-            value={{
-                categories,
-                businesses,
-                analytics,
-                trackEvent,
-                clientId,
-                socket,
-            }}
-        >
+        <DataContext.Provider value={{ categories, analytics, trackEvent, clientId, socket }}>
             {children}
         </DataContext.Provider>
     );
 };
 
-// --- Custom hook
 export const useData = () => useContext(DataContext);
+
+
 
 
 
