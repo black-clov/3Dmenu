@@ -18,9 +18,12 @@ export const DataProvider = ({ children }) => {
     ];
 
     const businesses = [
+        { id: "WokupStreet", name: "WOK'UP STREET - Work & Crispy", category: "coffee", image: "/3Dmenu/images/businesses/wokup_logo.jpg", city: "Casablanca" },
         { id: "Moods", name: "Moods Café & Restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" , city:"Casablanca" },
         { id: "coffee_shop_2", name: "Sushi Hiro Maroc", category: "coffee", image: "/3Dmenu/images/businesses/Sushi Hiro Maroc.png" , city:"Rabat"},
         { id: "coffee_shop_3", name: "Açai & You - Brunch & Coffee", category: "coffee", image: "/3Dmenu/images/businesses/Açaï & You - Brunch & Coffee.jpeg", city:"Tangier" },
+        { id: "asian1", name: "Asian Restaurant", category: "coffee", image: "/3Dmenu/images/businesses/asian_restaurant.jpeg", city: "Casablanca" },
+        { id: "moroccan1", name: "Moroccan Restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moroccan_restaurant.jpg", city: "Casablanca" },
         { id: "coffee_shop_5", name: "House 17", category: "coffee", image: "/3Dmenu/images/businesses/house 17.jpeg" },
         { id: "coffee_shop_6", name: "KOI cafe & restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
         { id: "coffee_shop_7", name: "Winos Cafe & Restaurant", category: "coffee", image: "/3Dmenu/images/businesses/moods.jpeg" },
@@ -58,6 +61,14 @@ export const DataProvider = ({ children }) => {
         { id: "dish_8", name: "Paella aux fruits de mer", category: "coffee", business: "Moods", glb: "/3Dmenu/models/8_Paella aux fruits de mer_shaded.glb", image: "/3Dmenu/images/items/moods/Paella aux fruits de mer.png" },
         { id: "dish_9", name: "Tagine 1", category: "coffee", business: "Moods", glb: "/3Dmenu/models/9_tagine_shaded.glb", image: "/3Dmenu/images/items/moods/tajine1.png" },
         { id: "dish_10", name: "Tajine 2", category: "coffee", business: "Moods", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/tajine2.png" },
+
+        { id: "asian_dish1", name: "Kimbap Dish", category: "coffee", business: "asian1", glb: "/3Dmenu/models/asian_plat1_shaded.glb", image: "/3Dmenu/images/items/asian_restaurant/Plat Ramen.png" },
+        { id: "asian_dish2", name: "Plat 2", category: "coffee", business: "asian1", glb: "/3Dmenu/models/asian_plat2_shaded.glb", image: "/3Dmenu/images/items/asian_restaurant/kimbap.jpg" },
+
+        { id: "moroccan_dish1", name: "Tajine plat", category: "coffee", business: "moroccan1", glb: "/3Dmenu/models/tajine plat_shaded.glb", image: "/3Dmenu/images/items/Moroccan Restaurant/Tajine plat.jpg" },
+        { id: "moroccan_dish2", name: "Tajine et Atay", category: "coffee", business: "moroccan1", glb: "/3Dmenu/models/Tajine et Atay_shaded.glb", image: "/3Dmenu/images/items/Moroccan Restaurant/moroccan tajine et atay.jpg" },
+        { id: "moroccan_dish3", name: "Panini plat", category: "coffee", business: "moroccan1", glb: "/3Dmenu/models/panini plat.glb", image: "/3Dmenu/images/items/Moroccan Restaurant/panini plat.jpg" },
+
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         //Petit Déjeune
@@ -130,8 +141,13 @@ export const DataProvider = ({ children }) => {
         { id: "dish_67", name: "🇱🇧 Warak Enab", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/7.png", type: "Nouveaux" },
         { id: "dish_68", name: "🇱🇧 Fatayer aux épinards", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/8.png", type: "Nouveaux" },
         { id: "dish_69", name: "🇱🇧 Hot Mezzé Libanais", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/9.png", type: "Nouveaux" },
-        { id: "dish_70", name: "🇱🇧 Lebanese Kibbeh", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/10.png", type: "Nouveaux" }
+        { id: "dish_70", name: "🇱🇧 Lebanese Kibbeh", category: "coffee", business: "coffee_shop_1", glb: "/3Dmenu/models/10_tajine_shaded.glb", image: "/3Dmenu/images/items/moods/Nouveaux/10.png", type: "Nouveaux" },
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        { id: "wokupstreet5", name: "Nouilles à Composer", category: "coffee", business: "WokupStreet", glb: "/3Dmenu/models/.glb", image: "/3Dmenu/images/items/wokupstreet/nouillet a compser_wokup.jpeg", type: "Nouveaux" },
+        { id: "wokupstreet2", name: "Temaki", category: "coffee", business: "WokupStreet", glb: "/3Dmenu/models/Temaki.glb", image: "/3Dmenu/images/items/wokupstreet/temaki_wokup.jpg", type: "Nouveaux" },
+        { id: "wokupstreet3", name: "Sushi Burger", category: "coffee", business: "WokupStreet", glb: "/3Dmenu/models/Sushi Burger.glb", image: "/3Dmenu/images/items/wokupstreet/sushi burger_wokup.jpg", type: "Nouveaux" },
+        { id: "wokupstreet4", name: "Maki Crok", category: "coffee", business: "WokupStreet", glb: "/3Dmenu/models/Maki Crok.glb", image: "/3Dmenu/images/items/wokupstreet/maki_wokup.jpg", type: "Nouveaux" },
+        
 
     ];
 

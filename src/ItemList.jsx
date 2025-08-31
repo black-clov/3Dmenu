@@ -1,12 +1,24 @@
-import { useContext, useEffect, useState } from "react";
+// components/ItemList.jsx
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useData } from "./Context/DataContext.jsx"; // updated to useData
+import { useData } from "./Context/DataContext.jsx"; // ✅ use hook
 import arGif from "./animated2.gif";
 
 export default function ItemList() {
     const { categoryId, businessId } = useParams();
-    const { items, trackEvent } = useData();
     const navigate = useNavigate();
+    const { items = [], categories = [], trackEvent, socket } = useData(); // safe defaults
+
+    // --- Generate or load persistent clientId ---
+    function getClientId() {
+        let clientId = localStorage.getItem("clientId");
+        if (!clientId) {
+            clientId = "client-" + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem("clientId", clientId);
+        }
+        return clientId;
+    }
+    const [clientId] = useState(getClientId); // load once
 
     const [filteredItems, setFilteredItems] = useState([]);
     const [activeTab, setActiveTab] = useState("Tous");
@@ -21,29 +33,42 @@ export default function ItemList() {
         "Nouveaux",
     ];
 
-    // Filter items by category, business, and active tab
+    // --- Filter items by category, business, and active tab ---
     useEffect(() => {
+        if (!Array.isArray(items)) {
+            setFilteredItems([]);
+            return;
+        }
+
         let result = items.filter(
             (i) => i.category === categoryId && i.business === businessId
         );
 
         if (activeTab !== "Tous") {
-            result = result.filter((i) => {
-                if (Array.isArray(i.type)) return i.type.includes(activeTab);
-                return i.type === activeTab;
-            });
+            result = result.filter((i) =>
+                Array.isArray(i.type) ? i.type.includes(activeTab) : i.type === activeTab
+            );
         }
 
         setFilteredItems(result);
     }, [categoryId, businessId, items, activeTab]);
 
+    // --- Back navigation ---
     const handleBackToBusiness = () => {
         navigate(`/category/${categoryId}`, { replace: true });
     };
 
+    // --- Navigate to 3D viewer & track event ---
     const handleView3D = (item) => {
-        // Track analytics event
-        trackEvent("Item Click", { itemId: item.id, name: item.name, businessId, categoryId });
+        if (trackEvent) {
+            trackEvent("Item Click", {
+                itemId: item.id,
+                name: item.name,
+                businessId,
+                categoryId,
+                clientId, // ✅ include clientId
+            });
+        }
         navigate(`/category/${categoryId}/business/${businessId}/item/${item.id}`);
     };
 
@@ -67,7 +92,9 @@ export default function ItemList() {
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab)}
-                            className={`food-tab px-4 py-2 rounded-lg ${isActive ? "bg-red-600 text-white" : "bg-white text-gray-700 shadow"
+                            className={`food-tab px-4 py-2 rounded-lg ${isActive
+                                    ? "bg-red-600 text-white"
+                                    : "bg-white text-gray-700 shadow"
                                 } hover:bg-red-500 hover:text-white transition`}
                         >
                             {tab}
@@ -77,7 +104,7 @@ export default function ItemList() {
             </div>
 
             {/* Items List */}
-            <div className="items-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="items-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative">
                 {filteredItems.length === 0 && (
                     <div className="text-center text-gray-500 py-20">Aucun item trouvé</div>
                 )}
@@ -85,21 +112,29 @@ export default function ItemList() {
                     <div
                         key={i.id}
                         onClick={() => handleView3D(i)}
-                        className="item-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition transform hover:-translate-y-1"
+                        className="item-card bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-2xl transition transform hover:-translate-y-1 relative"
                     >
                         {/* Image + GIF container */}
                         <div className="item-image-gif-container relative">
                             {i.image ? (
-                                <img src={i.image} alt={i.name} className="item-image w-full h-48 object-cover" />
+                                <img
+                                    src={i.image}
+                                    alt={i.name}
+                                    className="item-image w-full h-48 object-cover"
+                                />
                             ) : (
                                 <div className="no-image w-full h-48 bg-gray-200 flex items-center justify-center">
                                     No Image
                                 </div>
                             )}
-                            <img src={arGif} alt="AR animation" className="ar-gif absolute bottom-2 right-2 w-12 h-12 pointer-events-none" />
+                            <img
+                                src={arGif}
+                                alt="AR animation"
+                                className="ar-gif absolute bottom-2 right-2 w-12 h-12 pointer-events-none"
+                            />
                         </div>
 
-                        {/* Item Name */}
+                        {/* Item Info */}
                         <div className="p-4">
                             <h2 className="item-name text-lg font-semibold mb-1">{i.name}</h2>
                             <p className="item-meta text-gray-500">

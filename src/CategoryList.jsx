@@ -49,7 +49,7 @@ export default function CategoryList() {
         </div>
         <div className="hidden md:flex justify-center items-center">
           <p className="text-white font-extrabold text-4xl md:text-5xl lg:text-6xl typing-animation">
-            3D Presentation
+            Zoom In 3D
           </p>
         </div>
       </header>
