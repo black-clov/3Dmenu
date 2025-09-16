@@ -4284,6 +4284,15 @@ void main() {
           z-index: 20;
           pointer-events: none;
         }
+          .fullscreen-simulated {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000; /* or your app’s background */
+  z-index: 9999;
+  overflow: hidden;
+}
       `})]})}function ID(t){var e,n,r="";if(typeof t=="string"||typeof t=="number")r+=t;else if(typeof t=="object")if(Array.isArray(t)){var i=t.length;for(e=0;e<i;e++)t[e]&&(n=ID(t[e]))&&(r&&(r+=" "),r+=n)}else for(n in t)t[n]&&(r&&(r+=" "),r+=n);return r}function ot(){for(var t,e,n=0,r="",i=arguments.length;n<i;n++)(t=arguments[n])&&(e=ID(t))&&(r&&(r+=" "),r+=e);return r}var em={},LD={};(function(t){Object.defineProperty(t,Symbol.toStringTag,{value:"Module"});function e(n){return n==="__proto__"}t.isUnsafeProperty=e})(LD);var eb={};(function(t){Object.defineProperty(t,Symbol.toStringTag,{value:"Module"});function e(n){switch(typeof n){case"number":case"symbol":return!1;case"string":return n.includes(".")||n.includes("[")||n.includes("]")}}t.isDeepKey=e})(eb);var tb={};(function(t){Object.defineProperty(t,Symbol.toStringTag,{value:"Module"});function e(n){var r;return typeof n=="string"||typeof n=="symbol"?n:Object.is((r=n==null?void 0:n.valueOf)==null?void 0:r.call(n),-0)?"-0":String(n)}t.toKey=e})(tb);var tm={};(function(t){Object.defineProperty(t,Symbol.toStringTag,{value:"Module"});function e(n){const r=[],i=n.length;if(i===0)return r;let a=0,o="",s="",l=!1;for(n.charCodeAt(0)===46&&(r.push(""),a++);a<i;){const u=n[a];s?u==="\\"&&a+1<i?(a++,o+=n[a]):u===s?s="":o+=u:l?u==='"'||u==="'"?s=u:u==="]"?(l=!1,r.push(o),o=""):o+=u:u==="["?(l=!0,o&&(r.push(o),o="")):u==="."?o&&(r.push(o),o=""):o+=u,a++}return o&&r.push(o),r}t.toPath=e})(tm);(function(t){Object.defineProperty(t,Symbol.toStringTag,{value:"Module"});const e=LD,n=eb,r=tb,i=tm;function a(s,l,u){if(s==null)return u;switch(typeof l){case"string":{if(e.isUnsafeProperty(l))return u;const c=s[l];return c===void 0?n.isDeepKey(l)?a(s,i.toPath(l),u):u:c}case"number":case"symbol":{typeof l=="number"&&(l=r.toKey(l));const c=s[l];return c===void 0?u:c}default:{if(Array.isArray(l))return o(s,l,u);if(Object.is(l==null?void 0:l.valueOf(),-0)?l="-0":l=String(l),e.isUnsafeProperty(l))return u;const c=s[l];return c===void 0?u:c}}}function o(s,l,u){if(l.length===0)return u;let c=s;for(let f=0;f<l.length;f++){if(c==null||e.isUnsafeProperty(l[f]))return u;c=c[l[f]]}return c===void 0?u:c}t.get=a})(em);var mG=em.get;const xo=Li(mG);var ND={exports:{}},gt={};/** @license React v16.13.1
  * react-is.production.min.js
  *
