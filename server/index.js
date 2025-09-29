@@ -42,7 +42,6 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: process.env.FIREBASE_DATABASE_URL
 });
-
 const db = admin.database();
 
 // --- Express & Socket.io setup
@@ -52,13 +51,12 @@ const io = new Server(server, {
     cors: {
         origin: [
             "https://black-clov.github.io", // your deployed frontend
-            "http://localhost:5173",       // for local dev
+            "http://localhost:5173",        // for local dev
         ],
         methods: ["GET", "POST"],
         credentials: true,
     },
 });
-
 
 // --- Analytics state
 let analytics = {
@@ -91,7 +89,7 @@ io.on("connection", (socket) => {
     // --- Receive and store tracked events
     socket.on("trackEvent", (data) => {
         // Get clientId from socket or data
-        const clientId = data.clientId || socketClientMap.get(socket.id) || "unknown";
+        const clientId = data.clientId || socket.clientId || socketClientMap.get(socket.id) || "unknown";
 
         const eventWithTime = {
             ...data,
@@ -110,6 +108,10 @@ io.on("connection", (socket) => {
 
         // --- Update analytics counters
         switch (data.eventName) {
+            case "Comment Sent":
+                // Optional: do something with comment counts or logs
+                console.log("New Comment Sent event:", eventWithTime.commentText);
+                break;
             case "Category Click":
                 analytics.pageClicks[data.categoryId] = (analytics.pageClicks[data.categoryId] || 0) + 1;
                 break;
