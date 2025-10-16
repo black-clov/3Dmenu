@@ -11,26 +11,26 @@ function AppWrapper() {
 
   return (
     <Routes location={location} key={location.pathname + location.search}>
+
       {/* Default pages */}
       <Route path="/" element={<CategoryList />} />
-      <Route
-        path="/category/:categoryId"
-        element={<BusinessList key={location.pathname} />}
-      />
-      <Route
-        path="/category/:categoryId/business/:businessId"
-        element={<ItemList key={location.pathname} />}
-      />
-      <Route
-        path="/category/:categoryId/business/:businessId/item/:itemId"
-        element={<Viewer3D key={location.pathname} />}
-      />
+      <Route path="/category/:categoryId" element={<BusinessList key={location.pathname} />} />
 
-      {/* ✅ New Admin Dashboard Route */}
+      {/* Routes for ItemList */}
+      <Route path="/category/:categoryId/business/:businessId" element={<ItemList key={location.pathname} />} />
+      <Route path="/category/:categoryId/business/:businessId/table/:tableId" element={<ItemList key={location.pathname} />} />
+
+      {/* Routes for Viewer3D */}
+      <Route path="/category/:categoryId/business/:businessId/item/:itemId" element={<Viewer3D key={location.pathname} />} />
+      <Route path="/category/:categoryId/business/:businessId/table/:tableId/item/:itemId" element={<Viewer3D key={location.pathname} />} />
+
+      {/* Admin Dashboard */}
       <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   );
 }
+
+
 
 export default function App() {
   return (
