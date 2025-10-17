@@ -3,6 +3,8 @@ import http from "http";
 import { Server } from "socket.io";
 import admin from "firebase-admin";
 import dotenv from "dotenv";
+import crypto from "crypto";
+import cors from "cors";
 
 dotenv.config(); // Load environment variables from .env
 
@@ -22,6 +24,19 @@ requiredEnv.forEach((key) => {
     process.exit(1);
   }
 });
+
+// Initialize Express app first
+const app = express();
+
+// Enable CORS for REST API routes, including LAN frontend origin
+app.use(cors({
+  origin: [
+  "http://192.168.43.82:5173",
+  "http://localhost:5173",
+  "https://black-clov.github.io"
+],
+  credentials: true,
+}));
 
 // Firebase Admin SDK initialization
 const serviceAccount = {
@@ -44,18 +59,18 @@ admin.initializeApp({
 });
 const db = admin.database();
 
-// Express & Socket.io setup
-const app = express();
+// Create HTTP server and Socket.io instance with CORS for sockets
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "https://black-clov.github.io", // deployed frontend
-      "http://localhost:5173",        // local dev
-    ],
-    methods: ["GET", "POST"],
+  "http://192.168.43.82:5173",
+  "http://localhost:5173",
+  "https://black-clov.github.io"
+],
+    methods: ["GET","POST"],
     credentials: true,
-  },
+  }
 });
 
 // Analytics state
@@ -69,6 +84,57 @@ let analytics = {
 // Map socket IDs to client IDs
 const socketClientMap = new Map();
 
+// Helper to generate new token
+function generateToken(length = 12) {
+  return crypto.randomBytes(length).toString("hex");
+}
+
+// API to get current valid token for a table
+// If no valid token exists, generate a new one
+app.get("/api/tokens/current", async (req, res) => {
+  const { tableId } = req.query;
+  if (!tableId) {
+    return res.status(400).json({ error: "Missing tableId parameter" });
+  }
+  try {
+    const tokensSnapshot = await db.ref(`tokens/${tableId}`).orderByChild("used").equalTo(false).once("value");
+    const tokens = tokensSnapshot.val();
+
+    console.log("Tokens fetched from Firebase:", tokens);
+
+    const now = Date.now();
+
+    // Filter tokens that are unused and not expired
+    let validTokens = [];
+    if (tokens) {
+      validTokens = Object.entries(tokens).filter(
+        ([token, data]) => data.expiresAt > now && data.used === false
+      );
+    }
+
+    console.log("Valid tokens array:", validTokens);
+
+    if (validTokens.length === 0) {
+      // No valid tokens found, generate a new one
+      const newToken = generateToken();
+      const newTokenData = {
+        createdAt: now,
+        expiresAt: now + 60 * 60 * 1000, // valid for 1 hour
+        used: false
+      };
+      await db.ref(`tokens/${tableId}/${newToken}`).set(newTokenData);
+      console.log(`Generated new token ${newToken} for table ${tableId}`);
+      return res.json({ token: newToken, expiresAt: newTokenData.expiresAt });
+    }
+
+    const [tokenKey, tokenData] = validTokens[0];
+    res.json({ token: tokenKey, expiresAt: tokenData.expiresAt });
+  } catch (error) {
+    console.error("Error fetching or generating token:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Socket.io connections
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
@@ -79,7 +145,7 @@ io.on("connection", (socket) => {
     .then(() => console.log("Total visitors updated"))
     .catch(console.error);
 
-  // Identify user: map socket.id <-> clientId for later reference
+  // Identify user: map socket.id <-> clientId
   socket.on("identifyUser", (clientId) => {
     console.log(`Socket ${socket.id} identified as clientId: ${clientId}`);
     socket.clientId = clientId;
@@ -134,31 +200,70 @@ io.on("connection", (socket) => {
     io.emit("analyticsUpdate", analytics);
   });
 
-  // Receive and save orders
-  socket.on("submitOrder", (orderData) => {
+  // Submit order handling with token rotation
+  socket.on("submitOrder", async (orderData) => {
     console.log("Received order:", orderData);
 
-    // Use socket's clientId if userId missing in orderData
     const clientId = socket.clientId || "unknown";
+    const { tableName, sessionToken } = orderData;
 
-    const orderWithMeta = {
-      ...orderData,
-      userId: orderData.userId || clientId,
-      timestamp: Date.now(),
-      timeString: new Date().toISOString(),
-    };
+    if (!tableName || !sessionToken) {
+      socket.emit("orderError", { error: "Missing table name or session token" });
+      return;
+    }
 
-    const orderRef = db.ref("orders").push();
-    orderRef.set(orderWithMeta)
-      .then(() => {
-        console.log("Order saved to Firebase:", orderRef.key);
-        // Emit confirmation only to the originating socket
-        socket.emit("orderReceived", { orderId: orderRef.key, status: "received" });
-      })
-      .catch((err) => {
-        console.error("Failed to save order:", err);
-        socket.emit("orderError", { error: err.message });
-      });
+    try {
+      const tokenRef = db.ref(`tokens/${tableName}/${sessionToken}`);
+      const snapshot = await tokenRef.once("value");
+      const tokenData = snapshot.val();
+
+      if (!tokenData) {
+        socket.emit("orderError", { error: "Invalid session token" });
+        return;
+      }
+
+      const now = Date.now();
+
+      if (tokenData.used) {
+        socket.emit("orderError", { error: "Session token has already been used" });
+        return;
+      }
+
+      if (tokenData.expiresAt < now) {
+        socket.emit("orderError", { error: "Session token has expired" });
+        return;
+      }
+
+      // Prepare order data with metadata
+      const orderWithMeta = {
+        ...orderData,
+        userId: orderData.userId || clientId,
+        timestamp: now,
+        timeString: new Date().toISOString(),
+      };
+
+      // Save order first
+      const orderRef = db.ref("orders").push();
+      await orderRef.set(orderWithMeta);
+
+      // Only after successful order save, mark token used
+      await tokenRef.update({ used: true });
+
+      // Generate and save a new token for this table
+      const newToken = generateToken();
+      const newTokenData = {
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 60 * 60 * 1000, // Token valid for 1 hour
+        used: false,
+      };
+      await db.ref(`tokens/${tableName}/${newToken}`).set(newTokenData);
+      console.log(`Generated new token ${newToken} for table ${tableName}`);
+
+      socket.emit("orderReceived", { orderId: orderRef.key, status: "received" });
+    } catch (err) {
+      console.error("Failed to process order:", err);
+      socket.emit("orderError", { error: "Internal server error" });
+    }
   });
 
   socket.on("disconnect", () => {
@@ -167,8 +272,57 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start server
+// link redirect
+
+app.get('/redirect/:tableId', async (req, res) => {
+  const { tableId } = req.params;
+
+  if (!tableId) {
+    return res.status(400).send('Missing tableId parameter');
+  }
+
+  try {
+    const now = Date.now();
+    const tokensSnapshot = await db.ref(`tokens/${tableId}`).orderByChild('used').equalTo(false).once('value');
+    const tokens = tokensSnapshot.val();
+
+    if (!tokens) {
+      return res.status(404).send('No tokens found for this table');
+    }
+
+    // Filter tokens not expired and unused
+    const validTokens = Object.entries(tokens).filter(
+      ([token, data]) => data.expiresAt > now && data.used === false
+    );
+
+    let tokenKey;
+
+    if (validTokens.length === 0) {
+      // No valid tokens, generate new token
+      tokenKey = generateToken();
+      const newTokenData = {
+        createdAt: now,
+        expiresAt: now + 60 * 60 * 1000, // 1 hour validity
+        used: false,
+      };
+      await db.ref(`tokens/${tableId}/${tokenKey}`).set(newTokenData);
+      console.log(`Generated new token ${tokenKey} for table ${tableId}`);
+    } else {
+      [tokenKey] = validTokens[0];
+    }
+
+    const redirectUrl = `https://black-clov.github.io/3Dmenu/#/category/restaurant/business/X/table/${tableId}?token=${tokenKey}`;
+
+    return res.redirect(302, redirectUrl);
+  } catch (error) {
+    console.error('Error handling redirect:', error);
+    return res.status(500).send('Internal server error');
+  }
+});
+
+
+// Start server, listen on all interfaces for LAN access
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Backend running on port ${PORT}`);
 });

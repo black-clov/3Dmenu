@@ -66,14 +66,14 @@ export const DataProvider = ({ children }) => {
     fr: "Déjeuner & Dîner",
     en: "Lunch & Dinner",
     ar: "الغداء والعشاء",
-    zh: "[translate:午餐和晚餐]",
+    zh: "午餐和晚餐",
     ru: "Обед и ужин"
   },
   {
     fr: "Dessert",
     en: "Dessert",
     ar: "الحلوى",
-    zh: "[translate:甜点]",
+    zh: "甜点",
     ru: "Десерт"
   }
 ],

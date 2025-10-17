@@ -4,6 +4,15 @@ import { useData } from "./Context/DataContext.jsx";
 import arGif from "./animated2.gif";
 import { io } from "socket.io-client";
 
+import { useLocation} from "react-router-dom";
+
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
+
+
 const languageLabels = {
   fr: "FR",
   en: "EN",
@@ -13,27 +22,56 @@ const languageLabels = {
 };
 
 const translations = {
-  fr: {
-    all: "Tous",
-    noItems: "Aucun item trouvé",
-    cart: "Panier",
-    emptyCart: "Votre panier est vide",
-    removeItem: "Supprimer l'article",
-    submitOrder: "Passer commande au restaurant",
-    confirmOrder: "Confirmez-vous votre commande ?",
-    orderSubmitted: "Commande envoyée !",
-  },
-  en: {
-    all: "All",
-    noItems: "No items found",
-    cart: "Cart",
-    emptyCart: "Your cart is empty",
-    removeItem: "Remove item",
-    submitOrder: "Submit Order",
-    confirmOrder: "Confirm your order?",
-    orderSubmitted: "Order submitted!",
-  },
-  // Add other languages similarly...
+fr: {
+all: "Tous",
+noItems: "Aucun item trouvé",
+cart: "Panier",
+emptyCart: "Votre panier est vide",
+removeItem: "Supprimer l'article",
+submitOrder: "Passer commande au restaurant",
+confirmOrder: "Confirmez-vous votre commande ?",
+orderSubmitted: "Commande envoyée !",
+},
+en: {
+all: "All",
+noItems: "No items found",
+cart: "Cart",
+emptyCart: "Your cart is empty",
+removeItem: "Remove item",
+submitOrder: "Submit Order",
+confirmOrder: "Confirm your order?",
+orderSubmitted: "Order submitted!",
+},
+ar: {
+all: "الكل",
+noItems: "لا توجد عناصر",
+cart: "عربة التسوق",
+emptyCart: "عربة التسوق فارغة",
+removeItem: "إزالة العنصر",
+submitOrder: "إرسال الطلب",
+confirmOrder: "هل تؤكد طلبك؟",
+orderSubmitted: "تم إرسال الطلب!",
+},
+zh: {
+all: "全部",
+noItems: "未找到商品",
+cart: "购物车",
+emptyCart: "您的购物车为空",
+removeItem: "移除商品",
+submitOrder: "提交订单",
+confirmOrder: "确认您的订单？",
+orderSubmitted: "订单已提交!",
+},
+ru: {
+all: "Все",
+noItems: "Товары не найдены",
+cart: "Корзина",
+emptyCart: "Ваша корзина пуста",
+removeItem: "Удалить товар",
+submitOrder: "Отправить заказ",
+confirmOrder: "Подтвердите ваш заказ?",
+orderSubmitted: "Заказ отправлен!",
+}
 };
 
 export default function ItemList() {
@@ -45,6 +83,61 @@ export default function ItemList() {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState(() => () => {});
   const socketRef = useRef(null);
+  const [tokenExpired, setTokenExpired] = useState(false);
+
+  const query = useQuery();
+
+ const backendBaseURL = "https://threedmenu-server.onrender.com/";
+
+async function fetchCurrentToken(tableId) {
+  try {
+    const response = await fetch(`${backendBaseURL}/api/tokens/current?tableId=${tableId}`);
+    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+    const data = await response.json();
+    if (data.token) {
+      sessionStorage.setItem("tableToken", data.token);
+      sessionStorage.setItem("tableId", tableId);
+      console.log("Token stored in sessionStorage:", data.token);
+      return data.token;
+    }
+    throw new Error(data.error || "No token returned");
+  } catch (err) {
+    console.error("Failed to fetch current token:", err);
+    return null;
+  }
+}
+
+
+  // Single useEffect to fetch and store token on tableId change
+const urlToken = query.get("token");
+
+useEffect(() => {
+  async function updateToken() {
+    if (!tableId) return;
+
+    if (urlToken) {
+      sessionStorage.setItem("tableToken", urlToken);
+      sessionStorage.setItem("tableId", tableId);
+      console.log("Token from URL used:", urlToken);
+    }
+
+    const savedToken = sessionStorage.getItem("tableToken");
+    const savedTableId = sessionStorage.getItem("tableId");
+
+    if (!savedToken || savedTableId !== tableId) {
+      const freshToken = await fetchCurrentToken(tableId);
+      if (freshToken) {
+        const url = new URL(window.location);
+        url.searchParams.set("token", freshToken);
+        window.history.replaceState({}, "", url);
+      }
+    } else {
+      console.log("Token already stored:", savedToken);
+    }
+  }
+  updateToken();
+}, [tableId, urlToken]);
+
 
   const openConfirmPopup = (onConfirm) => {
     setConfirmCallback(() => onConfirm);
@@ -96,7 +189,15 @@ export default function ItemList() {
 
   const [filteredItems, setFilteredItems] = useState([]);
   const [activeTab, setActiveTab] = useState(translations.fr.all);
-  const [language, setLanguage] = useState("fr");
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem("appLanguage") || "fr";
+  });
+
+  // Persist selected language to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("appLanguage", language);
+  }, [language]);
+
 
   const currentBusiness = businesses.find((b) => b.id === businessId);
 
@@ -173,33 +274,60 @@ export default function ItemList() {
 
  useEffect(() => {
   socketRef.current = io("https://threedmenu-server.onrender.com/", {
-    transports: ["websocket", "polling"],
-  });
+  transports: ["websocket", "polling"],
+});
 
   socketRef.current.on("connect", () => {
     console.log("Socket connected:", socketRef.current.id);
   });
 
-  socketRef.current.on("orderReceived", (data) => {
-    console.log("Order confirmed:", data);
-    setCartItems([]);             // Clear cart after server confirm
-    setShowOrderSentPopup(true); // Show success popup
-    setShowConfirmPopup(false);
-    setTimeout(() => setShowOrderSentPopup(false), 60000);
-  });
+  socketRef.current.on("orderReceived", async () => {
+  sessionStorage.removeItem("tableToken");
+  sessionStorage.removeItem("tableId");
+
+  if (tableId) {
+    const newToken = await fetchCurrentToken(tableId);
+    if (newToken) {
+      const url = new URL(window.location);
+      url.searchParams.set("token", newToken);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }
+});
+
 
   socketRef.current.on("orderError", (error) => {
+  try {
     console.error("Order error:", error);
-    alert("Error submitting order");
+    if (
+      error.error === "Session token has already been used" ||
+      error.error === "Session token has expired"
+    ) {
+      setTokenExpired(true);
+      setShowOrderSentPopup(false);  // Hides success panel if shown
+      sessionStorage.removeItem("tableToken");
+      sessionStorage.removeItem("tableId");
+    } else {
+      alert(language === "fr" ? "Erreur lors de l’envoi de la commande]" : "Error submitting order");
+    }
     setShowConfirmPopup(false);
-  });
+  } catch (error) {
+    console.error("Error handling orderError:", error);
+  }
+});
+
+
 
   return () => {
-    socketRef.current.off("orderReceived");
-    socketRef.current.off("orderError");
-    socketRef.current.disconnect();
+    if (socketRef.current) {
+      socketRef.current.off("orderReceived");
+      socketRef.current.off("orderError");
+      socketRef.current.disconnect();
+    }
   };
-}, []);
+}, [language]);
+
+
 
 
   const submitOrder = () => {
@@ -209,31 +337,53 @@ export default function ItemList() {
   }
 
   openConfirmPopup(() => {
+    const currentTableId = sessionStorage.getItem("tableId");
+    const sessionToken = sessionStorage.getItem("tableToken");
+
+    console.log("Submitting order with token:", sessionToken, "tableId:", currentTableId);
+
+    if (!sessionToken || !currentTableId) {
+      alert(language === "fr" ? "Veuillez scanner le QR code de la table" : "Please scan your table QR code.");
+      setShowConfirmPopup(false);
+      return;
+    }
+
     const orderData = {
       userId: clientId,
-      tableName: tableId || "unknown",
+      tableName: currentTableId,
+      sessionToken,
       businessId,
       categoryId,
       items: cartItems.map(({ id, name, price }) => ({ id, name, price })),
     };
 
-    // Clear the cart immediately on confirm
     setCartItems([]);
 
-    console.log("Emitting submitOrder:", orderData);
-
     if (!socketRef.current || !socketRef.current.connected) {
-      alert(language === "fr" ? "Impossible de se connecter au serveur" : "Unable to connect to server");
+      alert(language === "fr" ? "Impossible de se connecter au serveur": "Unable to connect to server");
       return;
     }
 
     socketRef.current.emit("submitOrder", orderData);
+
     setShowConfirmPopup(false);
-    setShowOrderSentPopup(true);  // Optionally show the success popup immediately
-    // Optionally auto-hide success popup after some time
-    setTimeout(() => setShowOrderSentPopup(false), 60000);
+
+    // Show success popup only if token is NOT expired
+    const isTokenExpired = tokenExpired;  // Your token expiry state
+    if (!isTokenExpired) {
+      setShowOrderSentPopup(true);
+
+      setTimeout(() => setShowOrderSentPopup(false), 60000);
+    }
   });
 };
+
+
+
+
+
+
+
 
 
 
@@ -368,7 +518,7 @@ export default function ItemList() {
       </div>
       
 {/* Cart page */}
-   <div
+<div
   style={{
     position: "fixed",
     top: 170,
@@ -382,55 +532,64 @@ export default function ItemList() {
     padding: 6,
     zIndex: 1100,
     fontSize: "0.85rem",
+    borderRadius: 8,
+    animation: "cartPanelWobble 1.5s ease-in-out infinite",
   }}
   aria-label={translations[language]?.cart || "Cart"}
 >
-  <h3
-  style={{
-    marginBottom: 8,
-    fontWeight: 700,
-    color: "#28a745",
-    fontSize: "1rem",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  }}
->
-  <span>{translations[language]?.cart || "Cart"}</span>
-  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-    <span
-      style={{
-        backgroundColor: "#28a745",
-        color: "white",
-        borderRadius: "50%",
-        width: 24,
-        height: 24,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "0.85rem",
-        fontWeight: "700",
-      }}
-      aria-label={`${cartItems.length} items in cart`}
-    >
-      {cartItems.length}
-    </span>
-    <span aria-label="Total price in cart">
-      {cartItems.length > 0
-        ? `${cartItems.reduce((sum, ci) => {
-            const price = parseFloat(ci.price);
-            return sum + (isNaN(price) ? 0 : price);
-          }, 0).toFixed(2)} `
-        : ""}
-    </span>
-  </div>
-</h3>
+  <style>{`
+    @keyframes cartPanelWobble {
+      0%, 100% { transform: translateY(0); }
+      20% { transform: translateY(-4px); }
+      60% { transform: translateY(4px); }
+    }
+  `}</style>
 
+  <h3
+    style={{
+      marginBottom: 8,
+      fontWeight: 700,
+      color: "#28a745",
+      fontSize: "1rem",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+    }}
+  >
+    <span>{translations[language]?.cart || "Cart"}</span>
+    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+      <span
+        style={{
+          backgroundColor: "#28a745",
+          color: "white",
+          borderRadius: "50%",
+          width: 24,
+          height: 24,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: "0.85rem",
+          fontWeight: "700",
+        }}
+        aria-label={`${cartItems.length} items in cart`}
+      >
+        {cartItems.length}
+      </span>
+      <span aria-label="Total price in cart">
+        {cartItems.length > 0
+          ? `${cartItems.reduce((sum, ci) => {
+              const price = parseFloat(ci.price);
+              return sum + (isNaN(price) ? 0 : price);
+            }, 0).toFixed(2)} `
+          : ""}
+      </span>
+    </div>
+  </h3>
 
   {/* Scrollable list area */}
   <div style={{ flex: 1, overflowY: "auto" }}>
     {cartItems.length === 0 ? (
-      <p style={{ fontSize: "0.8rem" }}>
+      <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
         {translations[language]?.emptyCart ||
           (language === "fr"
             ? "Votre panier est vide"
@@ -448,6 +607,7 @@ export default function ItemList() {
               marginBottom: 5,
               padding: "2px 6px",
               borderBottom: "1px solid #ddd",
+              fontSize: "0.7rem",
             }}
           >
             <div style={{ flex: 1 }}>
@@ -465,12 +625,8 @@ export default function ItemList() {
                 color: "white",
                 cursor: "pointer",
               }}
-              onClick={() =>
-                setCartItems((prev) => prev.filter((_, i) => i !== idx))
-              }
-              aria-label={`${
-                translations[language]?.removeItem || "Remove item"
-              } ${ci.name}`}
+              onClick={() => setCartItems((prev) => prev.filter((_, i) => i !== idx))}
+              aria-label={`${translations[language]?.removeItem || "Remove"} ${ci.name}`}
             >
               ×
             </button>
@@ -479,7 +635,30 @@ export default function ItemList() {
       </ul>
     )}
   </div>
-  {showConfirmPopup && (
+  {/* Submit order button always visible at bottom */}
+  <button
+    onClick={submitOrder}
+    style={{
+      marginTop: 6,
+      width: "100%",
+      padding: "6px 0",
+      borderRadius: 6,
+      backgroundColor: "#28a745",
+      border: "none",
+      color: "white",
+      fontWeight: "bold",
+      cursor: "pointer",
+      fontSize: "0.85rem",
+      flexShrink: 0,
+    }}
+    aria-label={translations[language]?.submitOrder || "Submit order to restaurant"}
+  >
+    {translations[language]?.submitOrder || "Submit Order"}
+  </button>
+</div>
+
+{/* Confirm popup rendered separately */}
+{showConfirmPopup && (
   <div
     style={{
       position: "fixed",
@@ -511,18 +690,16 @@ export default function ItemList() {
       }}
     >
       <h2 id="confirm-popup-title" style={{ marginBottom: 12, fontWeight: 700 }}>
-        {language === "fr" ? "[translate:Confirmez-vous votre commande ?]" : "Confirm your order?"}
+        {language === "fr" ? "Confirmez-vous votre commande ?" : "Confirm your order?"}
       </h2>
       <p id="confirm-popup-desc" style={{ marginBottom: 24, fontSize: "1rem", color: "#333" }}>
         {language === "fr"
-          ? "Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir continuer ?]"
+          ? "Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir continuer ?"
           : "This action cannot be undone. Are you sure you want to proceed?"}
       </p>
       <div style={{ display: "flex", justifyContent: "space-around" }}>
         <button
-          onClick={() => {
-            confirmCallback();
-          }}
+          onClick={() => confirmCallback()}
           style={{
             backgroundColor: "#28a745",
             color: "white",
@@ -565,37 +742,16 @@ export default function ItemList() {
     </div>
   </div>
 )}
-  {/* Submit order button always visible at bottom */}
-  <button
-    onClick={submitOrder}
-    style={{
-      marginTop: 6,
-      width: "100%",
-      padding: "6px 0",
-      borderRadius: 6,
-      backgroundColor: "#28a745",
-      border: "none",
-      color: "white",
-      fontWeight: "bold",
-      cursor: "pointer",
-      fontSize: "0.85rem",
-      flexShrink: 0,
-    }}
-    aria-label={
-      translations[language]?.submitOrder || "Submit order to restaurant"
-    }
-  >
-    {translations[language]?.submitOrder || "Submit Order"}
-  </button>
-</div>
 
-
-      {/* Animated Order Sent Popup */}
-      {showOrderSentPopup && (
+{/* Animated Order Sent Popup */}
+{showOrderSentPopup && (
   <div
     style={{
       position: "fixed",
-      top: 0, left: 0, right: 0, bottom: 0,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       backgroundColor: "rgba(0,0,0,0.6)",
       display: "flex",
       justifyContent: "center",
@@ -614,22 +770,26 @@ export default function ItemList() {
         borderRadius: 12,
         maxWidth: 320,
         width: "90vw",
-        height: 250,            // fixed height for centering
+        height: 250,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",  // vertical centering
-        alignItems: "center",      // horizontal centering
+        justifyContent: "center",
+        alignItems: "center",
         boxShadow: "0 0 20px 5px rgba(40,167,69,0.9)",
         animation: "popupBounce 1s ease forwards",
         fontWeight: "700",
         fontSize: "1.1rem",
-        textAlign: "center",       // center text horizontally
+        textAlign: "center",
       }}
     >
       <div style={{ marginBottom: 16 }}>
-        <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXFvcDFwY2ZxbW9jb2tyYnE4NDdsN243YWhqaW8yeW4wbThyM2M3byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VSwEwYy5mrKwINV1NE/giphy.gif" alt="[translate:Order sent animation]" style={{ maxWidth: "100%", height: 130 }} />
+        <img
+          src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXFvcDFwY2ZxbW9jb2tyYnE4NDdsN243YWhqaW8yeW4wbThyM2M3byZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VSwEwYy5mrKwINV1NE/giphy.gif"
+          alt="Order sent animation"
+          style={{ maxWidth: "100%", height: 130 }}
+        />
       </div>
-      <p>
+      <p style={{ color: "white" }}>
         {language === "fr"
           ? "Votre commande a été envoyée à la cuisine et sera traitée sous peu."
           : "Your order has been sent to the kitchen and will be processed shortly."}
@@ -638,15 +798,44 @@ export default function ItemList() {
 
     <style>{`
       @keyframes popupBounce {
-        0% { transform: scale(0.5); opacity: 0;}
-        60% { transform: scale(1.05); opacity: 1;}
-        100% { transform: scale(1); opacity: 1;}
+        0% { transform: scale(0.5); opacity: 0; }
+        60% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
       }
     `}</style>
-        </div>
-      )}
-    </div>
-    
+  </div>
+)}
+{tokenExpired && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "#8B0000", // solid dark red, no transparency
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 3100,
+      color: "white",
+      fontWeight: "700",
+      fontSize: "1.2rem",
+      textAlign: "center",
+      padding: 20,
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    }}
+    role="alertdialog"
+    aria-live="assertive"
+  >
+    {language === "fr" 
+      ? "Vous devez être dans le restaurant pour passer commande. Veuillez scanner à nouveau le QR code de la table"
+      : "You should be in the restaurant to order. Please scan your table QR code again."}
+  </div>
+)}
+
+ </div>
+ 
       <style>{`
         .item-list-container {
           max-width: 1160px;

@@ -11,6 +11,7 @@ import show3Gif from "./share.gif";
 import { FaWhatsapp, FaInstagram, FaTiktok } from "react-icons/fa";
 import { FiMessageCircle } from "react-icons/fi";
 import commentGif from "./comment.gif";
+import cartPng from "./Panier.png";
 
 
 
@@ -89,6 +90,9 @@ const translations = {
     addToOrder: "اطلب الآن",
     confirm: "تأكيد",
     cancel: "إلغاء",
+    cart:"عربة",
+    total:"المجموع"
+
   },
   zh: {
   ingredients: "配料",
@@ -114,6 +118,8 @@ const translations = {
   addToOrder: "立即订购",
   confirm: "确认",
   cancel: "取消",
+  cart:"购物车",
+  total:"总计"
 },
   ru: {
     ingredients: "Ингредиенты",
@@ -139,6 +145,8 @@ const translations = {
     addToOrder: "Заказать сейчас",
     confirm: "Подтвердить",
     cancel: "Отмена",
+    cart:"корзина",
+    total:"итого"
   }
 };
 
@@ -147,13 +155,13 @@ function getShareText(business, item, lang) {
     return `Discover ${business?.name} in 3D${item ? ": " + item.name : ""} - ${window.location.href}`;
   }
   if (lang === "ar") {
-    return `اكتشف ${business?.name}${item ? " : " + item.name : ""} [translate:ثلاثي الأبعاد] - ${window.location.href}`;
+    return `اكتشف ${business?.name}${item ? " : " + item.name : ""} ثلاثي الأبعاد - ${window.location.href}`;
   }
   if (lang === "zh") {
   return `发现 ${business?.name} 的3D模型${item ? "：" + item.name : ""} - ${window.location.href}`;
 }
   if (lang === "ru") {
-    return `[translate:Откройте] ${business?.name} [translate:в 3D${item ? ": " + item.name : ""} -] ${window.location.href}`;
+    return `Откройте] ${business?.name} :в 3D${item ? ": " + item.name : ""} -] ${window.location.href}`;
   }
   // French (default)
   return `Découvrez ${business?.name} en 3D${item ? " : " + item.name : ""} - ${window.location.href}`;
@@ -211,7 +219,10 @@ export default function Viewer3D() {
   const [comment, setComment] = useState("");
   const [showAnimatedText, setShowAnimatedText] = useState(true);
   const [thankYouVisible, setThankYouVisible] = useState(false);
-  const [language, setLanguage] = useState("fr");
+  const [language, setLanguage] = useState(() => {
+  return localStorage.getItem("appLanguage") || "fr";
+});
+
   const navigate = useNavigate();
   const cameraRef = useRef(null);
   const controlsRef = useRef(null);
@@ -226,6 +237,7 @@ export default function Viewer3D() {
   const [cartItems, setCartItems] = useState([]);
   const [sessionId, setSessionId] = useState(null);
   const STORAGE_CART_KEY = `cartItems-${sessionId}`;
+  const [showCartList, setShowCartList] = useState(false);
   
 
 useEffect(() => {
@@ -244,6 +256,10 @@ function getClientId() {
 }
 
 const descFontSize = isMobile ? "8px" : "10px";
+
+useEffect(() => {
+  localStorage.setItem("appLanguage", language);
+}, [language]);
 
   useEffect(() => {
     const item = items.find((i) => i.id === itemId);
@@ -508,6 +524,21 @@ useEffect(() => {
   return () => window.removeEventListener('storage', handleStorageChange);
 }, [STORAGE_CART_KEY]);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  return (
   <div className="viewer3d-pro" dir={isArabic ? "rtl" : "ltr"}>
     
@@ -522,7 +553,7 @@ useEffect(() => {
       >
         <span className="arrow">{t.backArrow}</span>
       </button>
-      <div className="viewer-header-spacer"></div>
+      
       <div className="viewer-social-row">
         <div className="whatsapp-share-wrapper">
           <img
@@ -540,24 +571,13 @@ useEffect(() => {
             <FaWhatsapp size={48} />
           </button>
         </div>
-        <button
-          className="viewer-btn-social insta"
-          title="Instagram"
-          onClick={handleInstagramShare}
-          aria-label="Partager sur Instagram"
-        >
-          <FaInstagram size={18} />
-        </button>
-        <button
-          className="viewer-btn-social tiktok"
-          title="TikTok"
-          onClick={handleTiktokShare}
-          aria-label="Partager sur TikTok"
-        >
-          <FaTiktok size={18} />
-        </button>
+       
+        
       </div>
+      
     </div>
+
+    
     
 
     {/* Language selector moved below header */}
@@ -817,125 +837,192 @@ useEffect(() => {
   </div>
 )}
 
-{/* Cart Sidebar - smaller and more compact */}
-<div
-  style={{
-    position: "fixed",
-    top: 100,
-    left: 0,        // Changed from right: 0 to left: 0
-    width: 180,
-    maxHeight: 280,
-    backgroundColor: "rgba(244, 244, 244, 0.8)",
-    boxShadow: "3px 0 10px rgba(0,0,0,0.1)", // Adjust shadow direction for left side
-    overflowY: "auto",
-    padding: 6,
-    zIndex: 1100,
-    fontSize: "0.85rem"
-  }}
-  aria-label={translations[language]?.cart || "Cart"}
->
-  <h3
-  style={{
-    marginBottom: 8,
-    fontWeight: 700,
-    color: "#28a745",
-    fontSize: "1rem",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  }}
->
-  <span>{translations[language]?.cart || "Cart"}</span>
-  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-    <span
-      style={{
-        backgroundColor: "#28a745",
-        color: "white",
-        borderRadius: "50%",
-        width: 24,
-        height: 24,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "0.85rem",
-        fontWeight: "700",
-      }}
-      aria-label={`${cartItems.length} items in cart`}
-    >
-      {cartItems.length}
-    </span>
-    <span aria-label="Total price in cart" style={{ fontWeight: "bold" }}>
-      {cartItems.length > 0
-        ? `${cartItems.reduce((sum, ci) => {
-            const price = parseFloat(ci.price);
-            return sum + (isNaN(price) ? 0 : price);
-          }, 0).toFixed(2)} `
-        : ""}
-    </span>
-  </div>
-</h3>
 
-  {cartItems.length === 0 ? (
-    <p style={{ fontSize: "0.8rem" }}>
-      {translations[language]?.emptyCart || (language === "fr" ? "Votre panier est vide" : "Your cart is empty")}
-    </p>
-  ) : (
-    <>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {cartItems.map((ci, idx) => (
-          <li
-            key={idx}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 5,
-              padding: "2px 6px",
-              borderBottom: "1px solid #ddd",
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-              <span>{ci.name}</span>
-              <small style={{ fontSize: "0.75rem" }}>{ci.price ? `${ci.price} ` : "-"}</small>
-            </div>
-            <button
-              style={{
-                marginLeft: 6,
-                background: "#e74c3c",
-                border: "none",
-                borderRadius: 4,
-                padding: "1px 5px",
-                fontSize: "0.7rem",
-                color: "white",
-                cursor: "pointer",
-              }}
-              onClick={() => setCartItems(prev => prev.filter((_, i) => i !== idx))}
-              aria-label={`Remove ${ci.name}`}
-            >
-              ×
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      <div
+<>
+  {/* Cart PNG Button - fixed at top left, animates to attract */}
+  <div
+    role="button"
+    tabIndex={0}
+    aria-label={translations[language]?.cart || "Panier"}
+    onClick={() => setShowCartList(v => !v)}  // Toggle cart list visibility
+    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setShowCartList(v => !v); }}
+    style={{
+      position: "fixed",
+      top: 100,
+      left: 0,
+      width: 48,
+      height: 48,
+      cursor: "pointer",
+      zIndex: 1200,
+      userSelect: "none",
+      animation: "cartBounce 2s ease-in-out infinite",
+    }}
+  >
+    <img
+      src={cartPng}
+      alt={translations[language]?.cart || "Panier"}
+      style={{ width: "100%", height: "100%" }}
+      aria-hidden="true"
+    />
+    {cartItems.length > 0 && (
+      <span
+        aria-live="polite"
+        aria-atomic="true"
         style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          transform: "translate(25%, -25%)",
+          backgroundColor: "#28a745",
+          color: "white",
+          borderRadius: "50%",
+          width: 20,
+          height: 20,
           fontWeight: "700",
-          marginTop: 6,
-          borderTop: "1px solid #ddd",
-          paddingTop: 6,
-          fontSize: "0.85rem",
+          fontSize: "0.75rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          boxShadow: "0 0 5px rgba(0,0,0,0.3)"
         }}
       >
-        Total:{" "}
-        {cartItems.reduce((sum, ci) => {
-          const price = parseFloat(ci.price);
-          return sum + (isNaN(price) ? 0 : price);
-        }, 0).toFixed(2)} 
-      </div>
-    </>
+        {cartItems.length}
+      </span>
+    )}
+  </div>
+
+  {/* Cart Sidebar - toggled by button */}
+  {showCartList && (
+    <div
+      style={{
+        position: "fixed",
+        top: 150,
+        left: 0,
+        width: 180,
+        maxHeight: 280,
+        backgroundColor: "rgba(244, 244, 244, 0.8)",
+        boxShadow: "3px 0 10px rgba(0,0,0,0.1)",
+        overflowY: "auto",
+        padding: 6,
+        zIndex: 1100,
+        fontSize: "0.85rem",
+        borderRadius: 6,
+      }}
+      aria-label={translations[language]?.cart || "Panier"}
+    >
+      <h3
+        style={{
+          marginBottom: 8,
+          fontWeight: 700,
+          color: "#28a745",
+          fontSize: "1rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <span>{translations[language]?.cart || "Panier"}</span>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span
+            style={{
+              backgroundColor: "#28a745",
+              color: "white",
+              borderRadius: "50%",
+              width: 24,
+              height: 24,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              fontSize: "0.85rem",
+              fontWeight: "700",
+            }}
+            aria-label={`${cartItems.length} items in cart`}
+          >
+            {cartItems.length}
+          </span>
+          <span aria-label="Total price in cart" style={{ fontWeight: "bold" }}>
+            {cartItems.length > 0
+              ? `${cartItems.reduce((sum, ci) => {
+                  const price = parseFloat(ci.price);
+                  return sum + (isNaN(price) ? 0 : price);
+                }, 0).toFixed(2)}`
+              : ""}
+          </span>
+        </div>
+      </h3>
+
+      {cartItems.length === 0 ? (
+        <p style={{ fontSize: "0.8rem" }}>
+          {translations[language]?.emptyCart || (language === "fr" ? "Votre panier est vide" : "Your cart is empty")}
+        </p>
+      ) : (
+        <>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {cartItems.map((ci, idx) => (
+              <li
+                key={idx}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 5,
+                  padding: "2px 6px",
+                  borderBottom: "1px solid #ddd",
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                  <span>{ci.name}</span>
+                  <small style={{ fontSize: "0.75rem" }}>{ci.price ? `${ci.price} ` : "-"}</small>
+                </div>
+                <button
+                  style={{
+                    marginLeft: 6,
+                    background: "#e74c3c",
+                    border: "none",
+                    borderRadius: 4,
+                    padding: "1px 5px",
+                    fontSize: "0.7rem",
+                    color: "white",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setCartItems(prev => prev.filter((_, i) => i !== idx))}
+                  aria-label={`${translations[language]?.removeItem || "Remove"} ${ci.name}`}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div
+            style={{
+              fontWeight: "700",
+              marginTop: 6,
+              borderTop: "1px solid #ddd",
+              paddingTop: 6,
+              fontSize: "0.85rem",
+              textAlign: "right",
+            }}
+          >
+            {translations[language]?.total || "Total"}:{" "}
+            {cartItems.reduce((sum, ci) => {
+              const price = parseFloat(ci.price);
+              return sum + (isNaN(price) ? 0 : price);
+            }, 0).toFixed(2)}
+          </div>
+        </>
+      )}
+    </div>
   )}
-</div>
+
+  {/* Add CSS keyframes animation */}
+  <style>{`
+    @keyframes cartBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+  `}</style>
+</>
 
 
 
