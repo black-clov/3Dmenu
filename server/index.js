@@ -274,11 +274,11 @@ io.on("connection", (socket) => {
 
 // link redirect
 
-app.get('/redirect/:tableId', async (req, res) => {
-  const { tableId } = req.params;
+app.get('/redirect/:businessId/:tableId', async (req, res) => {
+  const { businessId, tableId } = req.params;
 
-  if (!tableId) {
-    return res.status(400).send('Missing tableId parameter');
+  if (!businessId || !tableId) {
+    return res.status(400).send('Missing businessId or tableId parameter');
   }
 
   try {
@@ -286,32 +286,34 @@ app.get('/redirect/:tableId', async (req, res) => {
     const tokensSnapshot = await db.ref(`tokens/${tableId}`).orderByChild('used').equalTo(false).once('value');
     const tokens = tokensSnapshot.val();
 
-    if (!tokens) {
-      return res.status(404).send('No tokens found for this table');
-    }
-
-    // Filter tokens not expired and unused
-    const validTokens = Object.entries(tokens).filter(
-      ([token, data]) => data.expiresAt > now && data.used === false
-    );
-
     let tokenKey;
 
-    if (validTokens.length === 0) {
-      // No valid tokens, generate new token
+    if (!tokens) {
       tokenKey = generateToken();
       const newTokenData = {
         createdAt: now,
-        expiresAt: now + 60 * 60 * 1000, // 1 hour validity
+        expiresAt: now + 60 * 60 * 1000, // valid for 1 hour
         used: false,
       };
       await db.ref(`tokens/${tableId}/${tokenKey}`).set(newTokenData);
-      console.log(`Generated new token ${tokenKey} for table ${tableId}`);
     } else {
-      [tokenKey] = validTokens[0];
+      const validTokens = Object.entries(tokens).filter(
+        ([token, data]) => data.expiresAt > now && data.used === false
+      );
+      if (validTokens.length === 0) {
+        tokenKey = generateToken();
+        const newTokenData = {
+          createdAt: now,
+          expiresAt: now + 60 * 60 * 1000,
+          used: false,
+        };
+        await db.ref(`tokens/${tableId}/${tokenKey}`).set(newTokenData);
+      } else {
+        [tokenKey] = validTokens[0];
+      }
     }
 
-    const redirectUrl = `https://black-clov.github.io/3Dmenu/#/category/restaurant/business/X/table/${tableId}?token=${tokenKey}`;
+    const redirectUrl = `https://black-clov.github.io/3Dmenu/#/category/restaurant/business/${businessId}/table/${tableId}?token=${tokenKey}`;
 
     return res.redirect(302, redirectUrl);
   } catch (error) {
@@ -319,6 +321,9 @@ app.get('/redirect/:tableId', async (req, res) => {
     return res.status(500).send('Internal server error');
   }
 });
+
+
+app.get('/test', (req, res) => res.send('Backend is working'));
 
 
 // Start server, listen on all interfaces for LAN access
