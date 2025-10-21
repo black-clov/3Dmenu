@@ -28,7 +28,7 @@ requiredEnv.forEach((key) => {
 // Initialize Express app
 const app = express();
 
-// Enable CORS for REST API routes, including LAN frontend origin
+// Enable CORS for REST API routes
 app.use(cors({
   origin: [
     "http://192.168.43.82:5173",
@@ -84,13 +84,11 @@ let analytics = {
 // Map socket IDs to client IDs
 const socketClientMap = new Map();
 
-// Helper to generate new token
 function generateToken(length = 12) {
   return crypto.randomBytes(length).toString("hex");
 }
 
-// API to get current valid token for a table of a specific business
-// If no valid token exists, generate a new one
+// API to get current valid token for a table under specific businessId
 app.get("/api/tokens/current", async (req, res) => {
   const { businessId, tableId } = req.query;
   if (!businessId || !tableId) {
@@ -105,7 +103,6 @@ app.get("/api/tokens/current", async (req, res) => {
 
     const now = Date.now();
 
-    // Filter tokens that are unused and not expired
     let validTokens = [];
     if (tokens) {
       validTokens = Object.entries(tokens).filter(
@@ -116,11 +113,10 @@ app.get("/api/tokens/current", async (req, res) => {
     console.log("Valid tokens array:", validTokens);
 
     if (validTokens.length === 0) {
-      // No valid tokens found, generate a new one
       const newToken = generateToken();
       const newTokenData = {
         createdAt: now,
-        expiresAt: now + 60 * 60 * 1000, // valid for 1 hour
+        expiresAt: now + 60 * 60 * 1000,
         used: false
       };
       await db.ref(`tokens/${businessId}/${tableId}/${newToken}`).set(newTokenData);
@@ -131,7 +127,7 @@ app.get("/api/tokens/current", async (req, res) => {
     const [tokenKey, tokenData] = validTokens[0];
     res.json({ token: tokenKey, expiresAt: tokenData.expiresAt });
   } catch (error) {
-    console.error("Error fetching or generating token:", error);
+    console.error("Error fetching/generating token:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -181,8 +177,6 @@ io.on("connection", (socket) => {
       case "Item Click":
         analytics.pageClicks[data.itemId] = (analytics.pageClicks[data.itemId] || 0) + 1;
         break;
-      default:
-        break;
     }
 
     db.ref("analytics").set(analytics)
@@ -199,7 +193,7 @@ io.on("connection", (socket) => {
     const { businessId, tableName, sessionToken } = orderData;
 
     if (!businessId || !tableName || !sessionToken) {
-      socket.emit("orderError", { error: "Missing businessId, table name or session token" });
+      socket.emit("orderError", { error: "Missing businessId, table name, or session token" });
       return;
     }
 
@@ -259,6 +253,7 @@ io.on("connection", (socket) => {
   });
 });
 
+// Redirect route for QR scans
 app.get('/redirect/:businessId/:tableId', async (req, res) => {
   const { businessId, tableId } = req.params;
   if (!businessId || !tableId) {
