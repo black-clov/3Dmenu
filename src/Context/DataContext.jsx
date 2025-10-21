@@ -24,12 +24,15 @@ export const DataProvider = ({ children }) => {
     category: "restaurant",
     image: "/3Dmenu/images/businesses/rest_black.jpg",
     city: "Casablanca",
+    latitude: 33.56625056356948,    // Example latitude for Restaurant X
+    longitude: -7.610105550067724, // Example longitude for Restaurant X
+    radiusMeters: 100000,           // Allowed radius in meters for Restaurant X
     categories: [
-    { fr: "Nouveaux", en: "New", ar: "جديد", zh: "新品" , ru: "Новые" },
-    { fr: "Déjeuner & Dîner", en: "Lunch & Dinner", ar: "الغداء والعشاء",zh: "午餐和晚餐", ru: "Обед и ужин" },
-    { fr: "Desserts", en: "Desserts", ar: "حلويات",zh: "甜点", ru: "Десерты" },
-  ],
-  tables: [1, 2, 3, 4, 5]
+      { fr: "Nouveaux", en: "New", ar: "جديد", zh: "新品", ru: "Новые" },
+      { fr: "Déjeuner & Dîner", en: "Lunch & Dinner", ar: "الغداء والعشاء", zh: "午餐和晚餐", ru: "Обед и ужин" },
+      { fr: "Desserts", en: "Desserts", ar: "حلويات", zh: "甜点", ru: "Десерты" },
+    ],
+    tables: [1, 2, 3, 4, 5]
   },
   {
     id: "Y",
@@ -37,11 +40,14 @@ export const DataProvider = ({ children }) => {
     category: "restaurant",
     image: "/3Dmenu/images/businesses/rest_red.jpg",
     city: "Rabat",
+    latitude: 34.0209433438067,      // Example latitude for Restaurant Y
+    longitude: -6.828141975133783,   // Example longitude for Restaurant Y
+    radiusMeters: 10000,             // Allowed radius for Restaurant Y
     categories: [
-  { fr: "Déjeuner & Dîner", en: "Lunch & Dinner", ar: "الغداء والعشاء",zh: "午餐和晚餐", ru: "Обед и ужин" },
-  { fr: "Boissons", en: "Drinks", ar: "مشروبات", zh: "饮料", ru: "Напитки" },
-  { fr: "Entrées", en: "Starters", ar: "المقبلات",zh: "前菜", ru: "Закуски" }
-],
+      { fr: "Déjeuner & Dîner", en: "Lunch & Dinner", ar: "الغداء والعشاء", zh: "午餐和晚餐", ru: "Обед и ужин" },
+      { fr: "Boissons", en: "Drinks", ar: "مشروبات", zh: "饮料", ru: "Напитки" },
+      { fr: "Entrées", en: "Starters", ar: "المقبلات", zh: "前菜", ru: "Закуски" }
+    ],
   },
   {
     id: "Z",
@@ -50,10 +56,13 @@ export const DataProvider = ({ children }) => {
     image: "/3Dmenu/images/businesses/rest_orange.jpg",
     city: "Marrakech",
     insta: "https://www.instagram.com/mr.unreal.things/",
+    latitude: 31.6295,               // Example latitude for Restaurant Z
+    longitude: -7.9811,              // Example longitude for Restaurant Z
+    radiusMeters: 10000,             // Allowed radius for Restaurant Z
     categories: [
-  { fr: "Déjeuner & Dîner", en: "Lunch & Dinner", ar: "الغداء والعشاء", zh: "午餐和晚餐", ru: "Обед и ужин" },
-  { fr: "Dessert", en: "Dessert", ar: "الحلوى",zh: "甜点", ru: "Десерт" }
-],
+      { fr: "Déjeuner & Dîner", en: "Lunch & Dinner", ar: "الغداء والعشاء", zh: "午餐和晚餐", ru: "Обед и ужин" },
+      { fr: "Dessert", en: "Dessert", ar: "الحلوى", zh: "甜点", ru: "Десерт" }
+    ],
   },
   {
     id: "B",

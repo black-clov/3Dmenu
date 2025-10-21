@@ -5,6 +5,7 @@ import arGif from "./animated2.gif";
 import { io } from "socket.io-client";
 
 import { useLocation} from "react-router-dom";
+import stepsIphoneVideo from "./steps_iphone_activate_location.mp4";
 
 
 function useQuery() {
@@ -31,6 +32,22 @@ removeItem: "Supprimer l'article",
 submitOrder: "Passer commande au restaurant",
 confirmOrder: "Confirmez-vous votre commande ?",
 orderSubmitted: "Commande envoyée !",
+tokenExpiredMessage: "Vous devez être dans le restaurant pour passer commande. Veuillez scanner à nouveau le QR code de la table",
+emptyCartMessage: "Votre panier est vide",
+confirmOrderTitle: "Confirmez-vous votre commande ?",
+confirmOrderDescription: "Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir continuer ?",
+confirmButton: "Confirmer",
+cancelButton: "Annuler",
+invalidRestaurant: "Restaurant invalide",
+geolocationNotSupported: "La géolocalisation n'est pas prise en charge par votre navigateur",
+notInRestaurant: "Veuillez être dans le restaurant pour passer commande",
+locationAccessDenied: "Impossible d'accéder à votre position. Veuillez autoriser la géolocalisation",
+scanQRCode: "Veuillez scanner le QR code de la table",
+serverConnectionError: "Impossible de se connecter au serveur",
+locationGuideTitle: "Activer la géolocalisation",
+locationGuideExplanation:"Pour utiliser cette application, veuillez activer la géolocalisation dans les réglages de votre iPhone. Cela permet de vérifier que vous êtes bien dans le restaurant.",
+locationGuideClose: "Fermer",
+
 },
 en: {
 all: "All",
@@ -41,6 +58,26 @@ removeItem: "Remove item",
 submitOrder: "Submit Order",
 confirmOrder: "Confirm your order?",
 orderSubmitted: "Order submitted!",
+tokenExpiredMessage: "You should be in the restaurant to order. Please scan your table QR code again.",
+emptyCartMessage: "Your cart is empty",
+confirmOrderTitle: "Confirm your order?",
+confirmOrderDescription: "This action cannot be undone. Are you sure you want to proceed?",
+confirmButton: "Confirm",
+cancelButton: "Cancel",
+confirmOrderTitle: "Confirm your order?",
+confirmOrderDescription: "This action cannot be undone. Are you sure you want to proceed?",
+confirmButton: "Confirm",
+cancelButton: "Cancel",
+invalidRestaurant: "Invalid restaurant",
+geolocationNotSupported: "Geolocation is not supported by your browser",
+notInRestaurant: "Please be in the restaurant to place an order.",
+locationAccessDenied: "Unable to access your location. Please allow location access.",
+scanQRCode: "Please scan your table QR code.",
+serverConnectionError: "Unable to connect to server",
+locationGuideTitle: "Enable Location Services",
+locationGuideExplanation:"To use this app, please enable location services in your iPhone settings. This allows verification that you are physically in the restaurant.",
+locationGuideClose: "Close",
+
 },
 ar: {
 all: "الكل",
@@ -51,6 +88,22 @@ removeItem: "إزالة العنصر",
 submitOrder: "إرسال الطلب",
 confirmOrder: "هل تؤكد طلبك؟",
 orderSubmitted: "تم إرسال الطلب!",
+tokenExpiredMessage: "يجب أن تكون في المطعم للطلب. يرجى مسح رمز الاستجابة السريعة للطاولة مرة أخرى",
+emptyCartMessage: "عربة التسوق فارغة",
+confirmOrderTitle: "هل تؤكد طلبك؟",
+confirmOrderDescription: "هذه العملية لا يمكن التراجع عنها. هل أنت متأكد أنك تريد المتابعة؟",
+confirmButton: "تأكيد",
+cancelButton: "إلغاء",
+invalidRestaurant: "مطعم غير صالح",
+geolocationNotSupported: "لا يدعم متصفحك نظام تحديد المواقع",
+notInRestaurant: "يرجى التواجد داخل المطعم لتقديم الطلب",
+locationAccessDenied: "غير قادر على الوصول إلى موقعك. يرجى السماح بالوصول إلى الموقع",
+scanQRCode: "يرجى مسح رمز الاستجابة السريعة للطاولة",
+serverConnectionError: "غير قادر على الاتصال بالخادم",
+locationGuideTitle: "تفعيل خدمات الموقع",
+locationGuideExplanation:"لاستخدام هذا التطبيق، يرجى تفعيل خدمات الموقع في إعدادات جهاز iPhone الخاص بك. هذا يسمح بالتحقق من وجودك داخل المطعم.",
+locationGuideClose: "إغلاق",
+
 },
 zh: {
 all: "全部",
@@ -61,6 +114,21 @@ removeItem: "移除商品",
 submitOrder: "提交订单",
 confirmOrder: "确认您的订单？",
 orderSubmitted: "订单已提交!",
+emptyCartMessage: "您的购物车为空",
+confirmOrderTitle: "确认您的订单？",
+confirmOrderDescription: "此操作无法撤销。您确定要继续吗？",
+confirmButton: "确认",
+cancelButton: "取消",
+invalidRestaurant: "无效的餐厅",
+geolocationNotSupported: "您的浏览器不支持地理位置",
+notInRestaurant: "请在餐厅内下单",
+locationAccessDenied: "无法访问您的位置。请允许位置访问",
+scanQRCode: "请扫描您的餐桌二维码]",
+serverConnectionError: "无法连接到服务器",
+locationGuideTitle: "启用定位服务",
+locationGuideExplanation:"要使用此应用程序，请在您的 iPhone 设置中启用定位服务。这有助于验证您是否在餐厅内。",
+locationGuideClose: "关闭",
+
 },
 ru: {
 all: "Все",
@@ -71,6 +139,20 @@ removeItem: "Удалить товар",
 submitOrder: "Отправить заказ",
 confirmOrder: "Подтвердите ваш заказ?",
 orderSubmitted: "Заказ отправлен!",
+emptyCartMessage: "Ваша корзина пуста",
+confirmOrderTitle: "Подтвердите ваш заказ?",
+confirmOrderDescription: "Это действие нельзя отменить. Вы уверены, что хотите продолжить?",
+confirmButton: "Подтвердить",
+cancelButton: "Отмена",
+invalidRestaurant: "Недопустимый ресторан",
+geolocationNotSupported: "Геолокация не поддерживается вашим браузером",
+notInRestaurant: "Пожалуйста, находиться в ресторане для оформления заказа",
+locationAccessDenied: "Невозможно определить ваше местоположение. Пожалуйста, разрешите доступ к геолокации",
+scanQRCode: "Пожалуйста, отсканируйте QR-код вашего стола",
+serverConnectionError: "Невозможно подключиться к серверу",
+locationGuideTitle: "Включите службы геолокации",
+locationGuideExplanation:"Чтобы использовать это приложение, включите службы геолокации в настройках вашего iPhone. Это позволит проверить, что вы находитесь в ресторане.",
+locationGuideClose: "Закрыть",
 }
 };
 
@@ -84,6 +166,8 @@ export default function ItemList() {
   const [confirmCallback, setConfirmCallback] = useState(() => () => {});
   const socketRef = useRef(null);
   const [tokenExpired, setTokenExpired] = useState(false);
+  
+  
 
   const query = useQuery();
 
@@ -285,6 +369,9 @@ useEffect(() => {
   sessionStorage.removeItem("tableToken");
   sessionStorage.removeItem("tableId");
 
+  setShowOrderSentPopup(true);
+  setTimeout(() => setShowOrderSentPopup(false), 60000);
+
   if (tableId) {
     const newToken = await fetchCurrentToken(tableId);
     if (newToken) {
@@ -294,6 +381,7 @@ useEffect(() => {
     }
   }
 });
+
 
 
   socketRef.current.on("orderError", (error) => {
@@ -308,7 +396,7 @@ useEffect(() => {
       sessionStorage.removeItem("tableToken");
       sessionStorage.removeItem("tableId");
     } else {
-      alert(language === "fr" ? "Erreur lors de l’envoi de la commande]" : "Error submitting order");
+      alert(language === "fr" ? "Erreur lors de l’envoi de la commande" : "Error submitting order");
     }
     setShowConfirmPopup(false);
   } catch (error) {
@@ -328,55 +416,124 @@ useEffect(() => {
 }, [language]);
 
 
+// Helper: calculates distance between two lat/lng points in meters
+function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Earth radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 
-  const submitOrder = () => {
+const currentRestaurant = businesses.find((b) => b.id === businessId);
+const [showLocationGuide, setShowLocationGuide] = useState(false);
+const videoRef = useRef(null);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+
+const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+
+const submitOrder = () => {
   if (cartItems.length === 0) {
-    alert(language === "fr" ? translations.fr.emptyCart : translations.en.emptyCart);
+    alert(translations[language]?.emptyCartMessage || translations.fr.emptyCartMessage);
     return;
   }
 
-  openConfirmPopup(() => {
-    const currentTableId = sessionStorage.getItem("tableId");
-    const sessionToken = sessionStorage.getItem("tableToken");
+  if (!currentRestaurant) {
+    alert(translations[language]?.invalidRestaurant || translations.fr.invalidRestaurant);
+    return;
+  }
 
-    console.log("Submitting order with token:", sessionToken, "tableId:", currentTableId);
+  if (!navigator.geolocation) {
+    alert(translations[language]?.geolocationNotSupported || translations.fr.geolocationNotSupported);
+    openConfirmPopup(proceedWithOrder);
+    return;
+  }
 
-    if (!sessionToken || !currentTableId) {
-      alert(language === "fr" ? "Veuillez scanner le QR code de la table" : "Please scan your table QR code.");
-      setShowConfirmPopup(false);
-      return;
+  setIsFetchingLocation(true); // Show loading spinner
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      setIsFetchingLocation(false); // Hide spinner on success
+
+      const { latitude, longitude } = position.coords;
+      const distance = getDistanceFromLatLonInMeters(
+        latitude,
+        longitude,
+        currentRestaurant.latitude,
+        currentRestaurant.longitude
+      );
+
+      if (distance <= currentRestaurant.radiusMeters) {
+        openConfirmPopup(proceedWithOrder);
+      } else {
+        alert(translations[language]?.notInRestaurant || translations.fr.notInRestaurant);
+      }
+    },
+    (error) => {
+      setIsFetchingLocation(false); // Hide spinner on error
+
+      const locationDenied =
+        error.code === error.PERMISSION_DENIED || error.code === error.POSITION_UNAVAILABLE;
+
+      if (locationDenied && isIOS) {
+        setShowLocationGuide(true);
+      } else if (locationDenied) {
+        alert(translations[language]?.locationAccessDenied || translations.fr.locationAccessDenied);
+      } else {
+        alert(translations[language]?.locationAccessDenied || translations.fr.locationAccessDenied);
+      }
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 30000,
+      timeout: 10000,
     }
+  );
 
-    const orderData = {
-      userId: clientId,
-      tableName: currentTableId,
-      sessionToken,
-      businessId,
-      categoryId,
-      items: cartItems.map(({ id, name, price }) => ({ id, name, price })),
-    };
 
-    setCartItems([]);
 
-    if (!socketRef.current || !socketRef.current.connected) {
-      alert(language === "fr" ? "Impossible de se connecter au serveur": "Unable to connect to server");
-      return;
-    }
+  // The actual function to proceed with order submission after confirmation
+  function proceedWithOrder() {
+  const currentTableId = sessionStorage.getItem("tableId");
+  const sessionToken = sessionStorage.getItem("tableToken");
 
-    socketRef.current.emit("submitOrder", orderData);
-
+  if (!sessionToken || !currentTableId) {
+    alert(translations[language]?.scanQRCode || translations.fr.scanQRCode);
     setShowConfirmPopup(false);
+    return;
+  }
 
-    // Show success popup only if token is NOT expired
-    const isTokenExpired = tokenExpired;  // Your token expiry state
-    if (!isTokenExpired) {
-      setShowOrderSentPopup(true);
+  const orderData = {
+    userId: clientId,
+    tableName: currentTableId,
+    sessionToken,
+    businessId,
+    categoryId,
+    items: cartItems.map(({ id, name, price }) => ({ id, name, price })),
+  };
 
-      setTimeout(() => setShowOrderSentPopup(false), 60000);
-    }
-  });
+  setCartItems([]);
+
+  if (!socketRef.current || !socketRef.current.connected) {
+    alert(translations[language]?.serverConnectionError || translations.fr.serverConnectionError);
+    return;
+  }
+
+  socketRef.current.emit("submitOrder", orderData);
+
+  setShowConfirmPopup(false);
+}
+
 };
+
+
 
 
 
@@ -523,15 +680,15 @@ useEffect(() => {
     position: "fixed",
     top: 170,
     right: 0,
-    width: 180,
-    maxHeight: 280,
+    width: 140,
+    maxHeight: 220,
     backgroundColor: "rgba(244,244,244,0.8)",
     boxShadow: "3px 0 10px rgba(0,0,0,0.1)",
     display: "flex",
     flexDirection: "column",
-    padding: 6,
+    padding: 4,
     zIndex: 1100,
-    fontSize: "0.85rem",
+    fontSize: "0.75rem",
     borderRadius: 8,
     animation: "cartPanelWobble 1.5s ease-in-out infinite",
   }}
@@ -547,29 +704,29 @@ useEffect(() => {
 
   <h3
     style={{
-      marginBottom: 8,
-      fontWeight: 700,
+      marginBottom: 6,
+      fontWeight: 600,
       color: "#28a745",
-      fontSize: "1rem",
+      fontSize: "0.85rem",
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
     }}
   >
     <span>{translations[language]?.cart || "Cart"}</span>
-    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
       <span
         style={{
           backgroundColor: "#28a745",
           color: "white",
           borderRadius: "50%",
-          width: 24,
-          height: 24,
+          width: 20,
+          height: 20,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          fontSize: "0.85rem",
-          fontWeight: "700",
+          fontSize: "0.75rem",
+          fontWeight: 600,
         }}
         aria-label={`${cartItems.length} items in cart`}
       >
@@ -588,53 +745,66 @@ useEffect(() => {
 
   {/* Scrollable list area */}
   <div style={{ flex: 1, overflowY: "auto" }}>
-    {cartItems.length === 0 ? (
-      <p style={{ fontSize: "0.8rem", textAlign: "center" }}>
-        {translations[language]?.emptyCart ||
-          (language === "fr"
-            ? "Votre panier est vide"
-            : "Your cart is empty")}
-      </p>
-    ) : (
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {cartItems.map((ci, idx) => (
-          <li
-            key={idx}
+  {cartItems.length === 0 ? (
+    <div
+      role="alert"
+      aria-live="polite"
+      style={{
+        padding: '20px',
+        margin: '20px auto',
+        maxWidth: '300px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: 8,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        color: '#6c757d',
+        fontWeight: 600,
+        fontSize: '1rem',
+        textAlign: 'center',
+      }}
+    >
+      {translations[language]?.emptyCartMessage || translations.fr.emptyCartMessage}
+    </div>
+  ) : (
+    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+      {cartItems.map((ci, idx) => (
+        <li
+          key={idx}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 5,
+            padding: "2px 6px",
+            borderBottom: "1px solid #ddd",
+            fontSize: "0.7rem",
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <span>{ci.name}</span>
+            <br />
+            <small>{ci.price ? `${ci.price} ` : "-"}</small>
+          </div>
+          <button
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 5,
-              padding: "2px 6px",
-              borderBottom: "1px solid #ddd",
+              background: "#e74c3c",
+              border: "none",
+              borderRadius: 4,
+              padding: "1px 5px",
               fontSize: "0.7rem",
+              color: "white",
+              cursor: "pointer",
             }}
+            onClick={() => setCartItems((prev) => prev.filter((_, i) => i !== idx))}
+            aria-label={`${translations[language]?.removeItem || "Remove"} ${ci.name}`}
           >
-            <div style={{ flex: 1 }}>
-              <span>{ci.name}</span>
-              <br />
-              <small>{ci.price ? `${ci.price} ` : "-"}</small>
-            </div>
-            <button
-              style={{
-                background: "#e74c3c",
-                border: "none",
-                borderRadius: 4,
-                padding: "1px 5px",
-                fontSize: "0.7rem",
-                color: "white",
-                cursor: "pointer",
-              }}
-              onClick={() => setCartItems((prev) => prev.filter((_, i) => i !== idx))}
-              aria-label={`${translations[language]?.removeItem || "Remove"} ${ci.name}`}
-            >
-              ×
-            </button>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div>
+            ×
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
   {/* Submit order button always visible at bottom */}
   <button
     onClick={submitOrder}
@@ -690,55 +860,54 @@ useEffect(() => {
       }}
     >
       <h2 id="confirm-popup-title" style={{ marginBottom: 12, fontWeight: 700 }}>
-        {language === "fr" ? "Confirmez-vous votre commande ?" : "Confirm your order?"}
-      </h2>
-      <p id="confirm-popup-desc" style={{ marginBottom: 24, fontSize: "1rem", color: "#333" }}>
-        {language === "fr"
-          ? "Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir continuer ?"
-          : "This action cannot be undone. Are you sure you want to proceed?"}
-      </p>
-      <div style={{ display: "flex", justifyContent: "space-around" }}>
-        <button
-          onClick={() => confirmCallback()}
-          style={{
-            backgroundColor: "#28a745",
-            color: "white",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontWeight: "600",
-            fontSize: "1rem",
-            boxShadow: "0 4px 10px rgba(40,167,69,0.6)",
-            transition: "background-color 0.2s ease",
-          }}
-          onMouseOver={e => (e.currentTarget.style.backgroundColor = "#218838")}
-          onMouseOut={e => (e.currentTarget.style.backgroundColor = "#28a745")}
-          aria-label={translations[language]?.confirmOrder || "Confirm order"}
-        >
-          {language === "fr" ? "Confirmer" : "Confirm"}
-        </button>
-        <button
-          onClick={() => setShowConfirmPopup(false)}
-          style={{
-            backgroundColor: "#dc3545",
-            color: "white",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontWeight: "600",
-            fontSize: "1rem",
-            boxShadow: "0 4px 10px rgba(220,53,69,0.6)",
-            transition: "background-color 0.2s ease",
-          }}
-          onMouseOver={e => (e.currentTarget.style.backgroundColor = "#c82333")}
-          onMouseOut={e => (e.currentTarget.style.backgroundColor = "#dc3545")}
-          aria-label={translations[language]?.cancel || "Cancel"}
-        >
-          {language === "fr" ? "Annuler" : "Cancel"}
-        </button>
-      </div>
+  {translations[language]?.confirmOrderTitle || translations.fr.confirmOrderTitle}
+</h2>
+<p id="confirm-popup-desc" style={{ marginBottom: 24, fontSize: "1rem", color: "#333" }}>
+  {translations[language]?.confirmOrderDescription || translations.fr.confirmOrderDescription}
+</p>
+<div style={{ display: "flex", justifyContent: "space-around" }}>
+  <button
+    onClick={() => confirmCallback()}
+    style={{
+      backgroundColor: "#28a745",
+      color: "white",
+      border: "none",
+      padding: "10px 20px",
+      borderRadius: 6,
+      cursor: "pointer",
+      fontWeight: "600",
+      fontSize: "1rem",
+      boxShadow: "0 4px 10px rgba(40,167,69,0.6)",
+      transition: "background-color 0.2s ease",
+    }}
+    onMouseOver={e => (e.currentTarget.style.backgroundColor = "#218838")}
+    onMouseOut={e => (e.currentTarget.style.backgroundColor = "#28a745")}
+    aria-label={translations[language]?.confirmOrderTitle || "Confirm order"}
+  >
+    {translations[language]?.confirmButton || translations.fr.confirmButton}
+  </button>
+  <button
+    onClick={() => setShowConfirmPopup(false)}
+    style={{
+      backgroundColor: "#dc3545",
+      color: "white",
+      border: "none",
+      padding: "10px 20px",
+      borderRadius: 6,
+      cursor: "pointer",
+      fontWeight: "600",
+      fontSize: "1rem",
+      boxShadow: "0 4px 10px rgba(220,53,69,0.6)",
+      transition: "background-color 0.2s ease",
+    }}
+    onMouseOver={e => (e.currentTarget.style.backgroundColor = "#c82333")}
+    onMouseOut={e => (e.currentTarget.style.backgroundColor = "#dc3545")}
+    aria-label={translations[language]?.cancelButton || "Cancel"}
+  >
+    {translations[language]?.cancelButton || translations.fr.cancelButton}
+  </button>
+</div>
+
     </div>
   </div>
 )}
@@ -813,7 +982,7 @@ useEffect(() => {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: "#8B0000", // solid dark red, no transparency
+      backgroundColor: "#8B0000",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -828,11 +997,105 @@ useEffect(() => {
     role="alertdialog"
     aria-live="assertive"
   >
-    {language === "fr" 
-      ? "Vous devez être dans le restaurant pour passer commande. Veuillez scanner à nouveau le QR code de la table"
-      : "You should be in the restaurant to order. Please scan your table QR code again."}
+    {translations[language]?.tokenExpiredMessage ?? translations.fr.tokenExpiredMessage}
   </div>
 )}
+
+{showLocationGuide && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.85)",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+      zIndex: 5000,
+      overflowY: "auto",
+    }}
+    role="dialog"
+    aria-modal="true"
+    aria-label={translations[language]?.locationGuideTitle || translations.fr.locationGuideTitle}
+  >
+    <p
+      style={{
+        color: "white",
+        fontSize: "1rem",
+        fontWeight: 600,
+        maxWidth: 360,
+        textAlign: "center",
+        marginBottom: 20,
+      }}
+    >
+      {translations[language]?.locationGuideExplanation || translations.fr.locationGuideExplanation}
+    </p>
+    <video
+      ref={videoRef}
+      src={stepsIphoneVideo}
+      style={{
+        width: "320px",
+        maxWidth: "90vw",
+        aspectRatio: "9 / 16",
+        borderRadius: 16,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.8)",
+        backgroundColor: "#000",
+      }}
+      autoPlay
+      muted
+      loop
+      playsInline
+      controls={false}
+    />
+    <button
+      onClick={() => {
+        if (videoRef.current) {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+        }
+        setShowLocationGuide(false);
+      }}
+      style={{
+        marginTop: 30,
+        padding: "12px 36px",
+        fontSize: "1.1rem",
+        fontWeight: "700",
+        color: "#fff",
+        backgroundColor: "#28a745",
+        border: "none",
+        borderRadius: 10,
+        cursor: "pointer",
+        boxShadow: "0 6px 15px rgba(40,167,69,0.7)",
+      }}
+      aria-label={translations[language]?.locationGuideClose || translations.fr.locationGuideClose}
+    >
+      {translations[language]?.locationGuideClose || translations.fr.locationGuideClose}
+    </button>
+  </div>
+)}
+
+{isFetchingLocation && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 6000,
+    }}
+    aria-live="polite"
+    aria-label="Loading location permission"
+  >
+    <div className="spinner" />
+  </div>
+)}
+
 
  </div>
  
@@ -1087,14 +1350,15 @@ useEffect(() => {
         }
         .item-name {
           text-align: center;
-          font-size: 1.14rem;
-          font-weight: 800;
-          margin-top: 12px;
+          font-size: 0.85rem;       /* smaller font size */
+          font-weight: 600;         /* slightly lighter weight */
+          margin-top: 8px;          /* reduced margin */
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           padding: 0 12px;
         }
+
         .arrow-icon {
           position: absolute;
           top: 10px;
@@ -1165,6 +1429,20 @@ useEffect(() => {
     padding-top: 210px;       /* space for fixed header + categories */
     width: calc(100% - 20px);
   }
+  .spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #28a745;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
         }
       `}</style>
     </div>
