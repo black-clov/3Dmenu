@@ -547,14 +547,13 @@ const submitOrder = () => {
 
  return (
   <div className="item-list-container">
-    <button
+    {/* <button
       onClick={handleBackToBusiness}
       className="item-back-btn-floating"
       aria-label="Retour"
     >
       <span className="arrow">←</span>
-    </button>
-
+    </button>*/}
     {currentBusiness && (
       <div
         className="business-header-row"
