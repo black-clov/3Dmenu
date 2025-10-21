@@ -57,9 +57,9 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: process.env.FIREBASE_DATABASE_URL
 });
+
 const db = admin.database();
 
-// Create HTTP server and Socket.io instance with CORS for sockets
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
@@ -68,12 +68,11 @@ const io = new Server(server, {
       "http://localhost:5173",
       "https://black-clov.github.io"
     ],
-    methods: ["GET","POST"],
+    methods: ["GET", "POST"],
     credentials: true,
   }
 });
 
-// Analytics state
 let analytics = {
   totalVisitors: 0,
   pageClicks: {},
@@ -81,11 +80,24 @@ let analytics = {
   salesTrend: [],
 };
 
-// Map socket IDs to client IDs
 const socketClientMap = new Map();
 
 function generateToken(length = 12) {
   return crypto.randomBytes(length).toString("hex");
+}
+
+// Helper to group order items by name and count quantity
+function groupItemsWithQuantity(items) {
+  const grouped = {};
+  for (const item of items) {
+    const name = item.name || item.itemName || JSON.stringify(item);
+    const key = name.toLowerCase();
+    if (!grouped[key]) {
+      grouped[key] = { ...item, quantity: 0, name: name };
+    }
+    grouped[key].quantity += 1;
+  }
+  return Object.values(grouped);
 }
 
 // API to get current valid token for a table under specific businessId
@@ -102,7 +114,6 @@ app.get("/api/tokens/current", async (req, res) => {
     console.log("Tokens fetched for business", businessId, "table", tableId, ":", tokens);
 
     const now = Date.now();
-
     let validTokens = [];
     if (tokens) {
       validTokens = Object.entries(tokens).filter(
@@ -190,7 +201,7 @@ io.on("connection", (socket) => {
     console.log("Received order:", orderData);
 
     const clientId = socket.clientId || "unknown";
-    const { businessId, tableName, sessionToken } = orderData;
+    const { businessId, tableName, sessionToken, items } = orderData;
 
     if (!businessId || !tableName || !sessionToken) {
       socket.emit("orderError", { error: "Missing businessId, table name, or session token" });
@@ -219,8 +230,12 @@ io.on("connection", (socket) => {
         return;
       }
 
+      // Group items by name and count quantity
+      const groupedItems = groupItemsWithQuantity(items || []);
+
       const orderWithMeta = {
         ...orderData,
+        items: groupedItems,
         userId: orderData.userId || clientId,
         timestamp: now,
         timeString: new Date().toISOString(),
@@ -253,7 +268,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// Redirect route for QR scans
 app.get('/redirect/:businessId/:tableId', async (req, res) => {
   const { businessId, tableId } = req.params;
   if (!businessId || !tableId) {

@@ -24,6 +24,21 @@ LOGO_PATH = None  # e.g., "logo.png"
 
 # Example dish menu links
 dish_links = {
+    "X_Table 1": "https://threedmenu-server.onrender.com/redirect/X/table1",
+    "X_Table 2": "https://threedmenu-server.onrender.com/redirect/X/table2",
+    "X_Table 3": "https://threedmenu-server.onrender.com/redirect/X/table3",
+    "X_Table 4": "https://threedmenu-server.onrender.com/redirect/X/table4",
+    "X_Table 5": "https://threedmenu-server.onrender.com/redirect/X/table5",
+    "X_Table 6": "https://threedmenu-server.onrender.com/redirect/X/table6",
+    "X_Table 7": "https://threedmenu-server.onrender.com/redirect/X/table7",
+    "X_Table 8": "https://threedmenu-server.onrender.com/redirect/X/table8",
+    "X_Table 9": "https://threedmenu-server.onrender.com/redirect/X/table9",
+    "X_Table 10": "https://threedmenu-server.onrender.com/redirect/X/table10",
+    "X_Table 11": "https://threedmenu-server.onrender.com/redirect/X/table11",
+    "X_Table 12": "https://threedmenu-server.onrender.com/redirect/X/table12",
+    "X_Table 13": "https://threedmenu-server.onrender.com/redirect/X/table13",
+    "X_Table 14": "https://threedmenu-server.onrender.com/redirect/X/table14",
+    "X_Table 15": "https://threedmenu-server.onrender.com/redirect/X/table15",
     "Y_Table 1": "https://threedmenu-server.onrender.com/redirect/Y/table1",
 
 }
